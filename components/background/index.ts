@@ -1,0 +1,2 @@
+export { PaperTexture } from './PaperTexture'
+

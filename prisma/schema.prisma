@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== BHAV (Themes/Emotions) =====
+model Bhav {
+  id          String   @id @default(cuid())
+  name        String   @unique // प्रेम, भक्ति, जीवन, दर्शन
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  poems        PoemBhav[]
+  performances PerformanceBhav[]
+
+  @@index([slug])
+}
+
+// ===== POEMS =====
+model Poem {
+  id                    String    @id @default(cuid())
+  title                 String
+  slug                  String    @unique
+  text                  String    // Full poem text
+  poetName              String    @default("अमन अक्षर")
+  
+  // Dates
+  writtenDate           DateTime?
+  firstPerformanceYear  Int?
+  firstPerformancePlace String?
+  
+  // Media
+  youtubeUrl            String?
+  
+  // Publishing
+  isFeatured            Boolean   @default(false)
+  isPublished           Boolean   @default(false)
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relations
+  bhavs       PoemBhav[]
+  book        Book?       @relation(fields: [bookId], references: [id])
+  bookId      String?
+
+  @@index([slug])
+  @@index([isPublished])
+  @@index([isFeatured])
+}
+
+// ===== POEM-BHAV JUNCTION =====
+model PoemBhav {
+  poem   Poem   @relation(fields: [poemId], references: [id], onDelete: Cascade)
+  poemId String
+  bhav   Bhav   @relation(fields: [bhavId], references: [id], onDelete: Cascade)
+  bhavId String
+
+  @@id([poemId, bhavId])
+  @@index([bhavId])
+}
+
+// ===== BOOKS =====
+model Book {
+  id          String  @id @default(cuid())
+  title       String
+  slug        String  @unique
+  description String?
+  
+  // Cover image stored as bytes
+  coverImage     Bytes?
+  coverImageType String? // e.g., "image/jpeg", "image/png"
+  
+  year        Int?
+  purchaseUrl String?
+  
+  // Publishing
+  isFeatured  Boolean @default(false)
+  isPublished Boolean @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  poems Poem[]
+
+  @@index([slug])
+  @@index([isPublished])
+}
+
+// ===== PERFORMANCES =====
+model Performance {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  context     String?  // Short description (1-2 lines)
+  youtubeUrl  String
+  
+  // Type: कवि-सम्मेलन, विशेष प्रस्तुति, भक्ति
+  type        String   @default("कवि-सम्मेलन")
+  
+  // Publishing
+  isFeatured  Boolean  @default(false)
+  isPublished Boolean  @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  bhavs PerformanceBhav[]
+
+  @@index([slug])
+  @@index([type])
+  @@index([isPublished])
+}
+
+// ===== PERFORMANCE-BHAV JUNCTION =====
+model PerformanceBhav {
+  performance   Performance @relation(fields: [performanceId], references: [id], onDelete: Cascade)
+  performanceId String
+  bhav          Bhav        @relation(fields: [bhavId], references: [id], onDelete: Cascade)
+  bhavId        String
+
+  @@id([performanceId, bhavId])
+  @@index([bhavId])
+}
+
+// ===== ADMIN =====
+model Admin {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ===== SITE SETTINGS =====
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+
+  @@index([key])
+}
+
+// ===== CONTACT SUBMISSIONS =====
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  eventType String?  // कवि-सम्मेलन, सांस्कृतिक कार्यक्रम, etc.
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// ===== FEATURED CONTENT =====
+model FeaturedContent {
+  id          String   @id @default(cuid())
+  type        String   // "quote", "poem", "performance", "book"
+  contentId   String?  // Reference to poem/performance/book id
+  customText  String?  // For custom quotes
+  position    Int      @default(0) // Order on homepage
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([type])
+  @@index([isActive])
+}
+

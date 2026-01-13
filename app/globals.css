@@ -1,26 +1,354 @@
 @import "tailwindcss";
 
+/* ===== COLOR SYSTEM ===== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Background - aged paper tones (beige/cream) */
+  --bg-primary: #d4c4b0;  /* Light beige/cream */
+  --bg-secondary: #e8ddd2; /* Even lighter cream */
+  
+  /* Text - dark brown for contrast on light background */
+  --text-primary: #2c2416;  /* Dark brown */
+  --text-secondary: #4a3f2f; /* Medium brown */
+  --text-muted: #7a6850;     /* Light brown */
+  
+  /* Accent */
+  --accent-gold: #8b6914;    /* Darker gold for contrast */
+  --accent-warm: #a0826d;
+  
+  /* Dividers - dark brown for light background */
+  --divider: rgba(120, 100, 80, 0.15);
+  --divider-strong: rgba(100, 80, 60, 0.25);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-accent-gold: var(--accent-gold);
+  --color-accent-warm: var(--accent-warm);
+  --color-divider: var(--divider);
+  --color-divider-strong: var(--divider-strong);
+  
+  /* Font families */
+  --font-poem: 'Noto Serif Devanagari', serif;
+  --font-heading: 'Tiro Devanagari Hindi', serif;
+  --font-ui: 'Hind', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ===== BASE STYLES ===== */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  min-height: 100vh;
+  position: relative;
+  /* Background handled by procedural PaperTexture component */
+  background-color: var(--bg-primary);
+  overflow-x: hidden;
+}
+
+/* ===== TYPOGRAPHY ===== */
+
+/* Poem body text */
+.font-poem {
+  font-family: var(--font-poem);
+}
+
+/* Headings and titles */
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+/* UI elements */
+.font-ui {
+  font-family: var(--font-ui);
+}
+
+/* ===== POEM LINE STYLING ===== */
+.poem-line {
+  font-family: var(--font-poem);
+  line-height: 2;
+  display: block;
+}
+
+.poem-line::first-letter {
+  font-size: 1.12em;
+  /* Same font, same color, just slightly larger */
+}
+
+/* ===== DIVIDERS ===== */
+.divider {
+  height: 1px;
+  background: var(--divider);
+  border: none;
+  margin: 2rem 0;
+}
+
+.divider-strong {
+  height: 1px;
+  background: var(--divider-strong);
+  border: none;
+}
+
+/* ===== TEXT BUTTON STYLES ===== */
+.text-button {
+  font-family: var(--font-ui);
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.text-button:hover {
+  color: var(--text-primary);
+}
+
+/* ===== CONTAINER ===== */
+.page-container {
+  max-width: 42rem; /* Notebook-like width */
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .page-container {
+    padding: 2rem;
+  }
+}
+
+/* ===== SELECTION ===== */
+::selection {
+  background: rgba(139, 105, 20, 0.2);  /* Dark gold selection on light bg */
+  color: var(--text-primary);
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* ===== YOUTUBE EMBED ===== */
+.youtube-embed {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 */
+  background: var(--text-primary);  /* Dark frame on light background */
+  overflow: hidden;
+  /* Elegant frame */
+  border: 2px solid var(--text-muted);
+  box-shadow: 
+    inset 0 0 20px rgba(120, 100, 80, 0.2),
+    0 4px 20px rgba(100, 80, 60, 0.3),
+    0 8px 30px rgba(80, 60, 40, 0.2);
+}
+
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Facade button (before video plays) */
+.youtube-facade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Thumbnail background */
+.youtube-thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: grayscale(20%) brightness(0.75) contrast(1.1);
+}
+
+/* Dark overlay for blending with paper texture */
+.youtube-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 9, 8, 0.4) 0%,
+    rgba(20, 18, 15, 0.2) 50%,
+    rgba(10, 9, 8, 0.4) 100%
+  );
+  /* Subtle vignette */
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Subtle play button */
+.youtube-play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 68px;
+  height: 48px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.youtube-facade:hover .youtube-play-btn {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.youtube-facade:hover .youtube-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(10, 9, 8, 0.6) 0%,
+    rgba(20, 18, 15, 0.4) 50%,
+    rgba(10, 9, 8, 0.6) 100%
+  );
+}
+
+.youtube-play-icon {
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== FOCUS STATES ===== */
+:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* Skip to content link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  z-index: 10000;
+  border: 1px solid var(--divider-strong);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --divider: rgba(0, 0, 0, 0.3);
+    --divider-strong: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  /* Hide non-essential elements */
+  body::before,
+  nav,
+  footer,
+  .text-button,
+  .youtube-embed,
+  button {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+  
+  /* Reset colors for print */
+  .font-heading,
+  .font-poem,
+  .font-ui,
+  h1, h2, h3, p {
+    color: black !important;
+  }
+  
+  /* Poem styling for print */
+  .poem-line {
+    line-height: 1.8;
+    font-size: 14pt;
+  }
+  
+  .poem-line::first-letter {
+    font-size: 1.15em;
+  }
+  
+  /* Page breaks */
+  h1 {
+    page-break-after: avoid;
+  }
+  
+  article {
+    page-break-inside: avoid;
+  }
+  
+  /* Print header */
+  @page {
+    margin: 2cm;
+  }
+  
+  /* Container for print */
+  .page-container {
+    max-width: 100%;
+    padding: 0;
+  }
 }
