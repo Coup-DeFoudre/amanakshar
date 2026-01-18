@@ -3,51 +3,7 @@ import { PageContainer } from '@/components/ui/PageContainer'
 import { SectionSpacing } from '@/components/ui/SectionSpacing'
 import { Divider } from '@/components/ui/Divider'
 import { PoemCard, PoemFilters } from '@/components/poems'
-
-// Static data - will be replaced with DB queries
-const staticPoems = [
-  {
-    id: '1',
-    title: 'कुछ शब्द सिर्फ़ कहे जाते',
-    slug: 'kuch-shabd-sirf-kahe-jaate',
-    excerpt: 'कुछ शब्द सिर्फ़ कहे जाते, जिए जाते हैं। दिल की गहराइयों में उतरते, सांसों में बसते हैं।',
-    bhavs: ['प्रेम'],
-    year: 2023,
-  },
-  {
-    id: '2',
-    title: 'दिल से निकली बात',
-    slug: 'dil-se-nikli-baat',
-    excerpt: 'रात थी मन्नतों की, जब दिल से आवाज़ दी, झुठ वाले क्या जानें वो, जो सिर्फ़ दुआएँ जिए थे।',
-    bhavs: ['प्रेम', 'जीवन'],
-    year: 2023,
-  },
-  {
-    id: '3',
-    title: 'भक्ति का सार',
-    slug: 'bhakti-ka-saar',
-    excerpt: 'जब मन में बसे प्रभु का नाम, तो कैसी चिंता, कैसा काम। हर श्वास में उनका ध्यान, यही है सच्ची पहचान।',
-    bhavs: ['भक्ति'],
-    year: 2022,
-  },
-  {
-    id: '4',
-    title: 'जीवन की राह',
-    slug: 'jeevan-ki-raah',
-    excerpt: 'कठिन है राह, पर चलना है। गिरना है, संभलना है। यही जीवन का सार है, हर पल नया विचार है।',
-    bhavs: ['जीवन', 'दर्शन'],
-    year: 2022,
-  },
-]
-
-const staticBhavs = [
-  { name: 'प्रेम', slug: 'prem' },
-  { name: 'भक्ति', slug: 'bhakti' },
-  { name: 'जीवन', slug: 'jeevan' },
-  { name: 'दर्शन', slug: 'darshan' },
-]
-
-const staticYears = [2023, 2022]
+import { db } from '@/lib/db'
 
 interface PageProps {
   searchParams: Promise<{ bhav?: string; year?: string }>
@@ -57,20 +13,74 @@ export default async function KavitayenPage({ searchParams }: PageProps) {
   const params = await searchParams
   const selectedBhav = params.bhav
   const selectedYear = params.year
-  
-  // Filter poems based on selected filters
-  let filteredPoems = staticPoems
-  
+
+  // Fetch bhavs for filter
+  const bhavs = await db.bhav.findMany({
+    orderBy: { name: 'asc' },
+    select: {
+      name: true,
+      slug: true,
+    },
+  })
+
+  // Build query filter
+  const where: {
+    isPublished: boolean
+    bhavs?: { some: { bhav: { slug: string } } }
+    firstPerformanceYear?: number
+  } = {
+    isPublished: true,
+  }
+
   if (selectedBhav) {
-    const bhavName = staticBhavs.find(b => b.slug === selectedBhav)?.name
-    if (bhavName) {
-      filteredPoems = filteredPoems.filter(p => p.bhavs.includes(bhavName))
+    where.bhavs = {
+      some: {
+        bhav: { slug: selectedBhav },
+      },
     }
   }
-  
+
   if (selectedYear) {
-    filteredPoems = filteredPoems.filter(p => p.year === parseInt(selectedYear))
+    where.firstPerformanceYear = parseInt(selectedYear)
   }
+
+  // Fetch published poems
+  const poems = await db.poem.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    include: {
+      bhavs: {
+        include: {
+          bhav: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  })
+
+  // Get unique years for filter
+  const yearsResult = await db.poem.findMany({
+    where: { isPublished: true },
+    select: { firstPerformanceYear: true },
+    distinct: ['firstPerformanceYear'],
+    orderBy: { firstPerformanceYear: 'desc' },
+  })
+  const years = yearsResult
+    .map(p => p.firstPerformanceYear)
+    .filter((y): y is number => y !== null)
+
+  // Transform poems for display
+  const displayPoems = poems.map(poem => ({
+    id: poem.id,
+    title: poem.title,
+    slug: poem.slug,
+    excerpt: poem.text.substring(0, 150).replace(/\n/g, ' ') + (poem.text.length > 150 ? '...' : ''),
+    bhavs: poem.bhavs.map(b => b.bhav.name),
+  }))
   
   return (
     <main className="min-h-screen">
@@ -84,10 +94,10 @@ export default async function KavitayenPage({ searchParams }: PageProps) {
           {/* Filters */}
           <Suspense fallback={null}>
             <PoemFilters
-              bhavs={staticBhavs}
+              bhavs={bhavs}
               selectedBhav={selectedBhav}
               selectedYear={selectedYear}
-              years={staticYears}
+              years={years}
             />
           </Suspense>
           
@@ -95,12 +105,23 @@ export default async function KavitayenPage({ searchParams }: PageProps) {
           
           {/* Poems List */}
           <div className="space-y-8">
-            {filteredPoems.length === 0 ? (
-              <p className="text-center text-text-muted font-ui py-12">
-                इस श्रेणी में कोई कविता नहीं मिली
-              </p>
+            {displayPoems.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="font-heading text-2xl text-text-muted mb-2">
+                  {selectedBhav || selectedYear 
+                    ? 'इस श्रेणी में कोई कविता नहीं मिली'
+                    : 'अभी कोई कविता प्रकाशित नहीं है'
+                  }
+                </p>
+                <p className="font-ui text-text-muted">
+                  {selectedBhav || selectedYear 
+                    ? 'अन्य फ़िल्टर आज़माएं'
+                    : 'जल्द ही नई कविताएँ आएंगी'
+                  }
+                </p>
+              </div>
             ) : (
-              filteredPoems.map((poem, index) => (
+              displayPoems.map((poem, index) => (
                 <div key={poem.id}>
                   <PoemCard
                     title={poem.title}
@@ -109,7 +130,7 @@ export default async function KavitayenPage({ searchParams }: PageProps) {
                     bhavs={poem.bhavs}
                     index={index}
                   />
-                  {index < filteredPoems.length - 1 && <Divider />}
+                  {index < displayPoems.length - 1 && <Divider />}
                 </div>
               ))
             )}
@@ -124,4 +145,3 @@ export const metadata = {
   title: 'कविताएँ — अमन अक्षर',
   description: 'अमन अक्षर की सम्पूर्ण कविताओं का संग्रह। प्रेम, भक्ति, जीवन और दर्शन की कविताएँ।',
 }
-

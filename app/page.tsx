@@ -7,8 +7,9 @@ import {
   WordSection,
   ConnectionSection,
 } from '@/components/home'
+import { db } from '@/lib/db'
 
-// Homepage data - Aman Akshar
+// Homepage data - Aman Akshar (static content that doesn't change)
 const homeData = {
   opening: {
     poetName: 'अमन अक्षर',
@@ -21,7 +22,7 @@ const homeData = {
   voice: {
     title: 'भाव सिर्फ़ राम हैं',
     quote: 'सारा जग है प्रेरणा, प्रभाव सिर्फ़ राम हैं',
-    youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // Replace with actual Ram Geet video
+    youtubeUrl: 'https://www.youtube.com/watch?v=Aman_Akshar_Performance', // Aman Akshar's signature Ram Geet performance
     poemSlug: 'bhav-sirf-ram-hain',
   },
   bhavs: [
@@ -65,8 +66,14 @@ const homeData = {
   },
   poet: {
     name: 'डॉ. अमन अक्षर',
-    bio: 'खंडवा के छोटे से गाँव मुंदी से निकलकर, बड़े पैकेज की नौकरी छोड़कर, शब्दों को मंच तक ले जाने वाले कवि। जो कहा नहीं जा सकता, वह कविता में उतरता है।',
-    imageUrl: undefined, // Add poet image path when available
+    bio: 'खंडवा जिले के छोटे से गाँव मुंदी में जन्मे, IIT से पढ़े, लाखों का पैकेज छोड़कर कविता को जीवन बनाया। जब पहली बार लाल किले के मंच पर खड़े हुए, तब समझ आया — यही वो जगह है जहाँ शब्द साँस लेते हैं।',
+    imageUrl: '/images/poet/aman-akshar-portrait.svg',
+    signatureUrl: '/images/poet/signature.svg',
+    personalQuotes: [
+      'कविता लिखी नहीं जाती, उतारी जाती है।',
+      'मंच पर खड़े होकर जब हज़ारों आँखें देखती हैं, तब कवि नहीं, कविता बोलती है।',
+      'भाव सूचियाँ बहुत हैं, भाव सिर्फ़ राम हैं।',
+    ],
     collaborations: [
       { name: 'Pt. Hariprasad Chaurasia', role: 'बांसुरी' },
       { name: 'Shivkumar Sharma', role: 'संतूर' },
@@ -81,39 +88,6 @@ const homeData = {
       { title: 'JRF NET', icon: '📚' },
     ],
   },
-  featuredPoems: [
-    {
-      title: 'भाव सिर्फ़ राम हैं',
-      slug: 'bhav-sirf-ram-hain',
-      openingLines: [
-        'सारा जग है प्रेरणा, प्रभाव सिर्फ़ राम हैं',
-        'भाव सूचियाँ बहुत हैं, भाव सिर्फ़ राम हैं',
-        'राम एक सत्य जिसका है प्रमाण जानकी',
-      ],
-      bhav: 'भक्ति',
-      bhavSlug: 'bhakti',
-    },
-    {
-      title: 'हम यहाँ तक',
-      slug: 'ham-yahan-tak',
-      openingLines: [
-        'हम यहाँ तक अचानक नहीं आये हैं',
-        'हर मोड़ पर कुछ खोकर आये हैं',
-      ],
-      bhav: 'जीवन',
-      bhavSlug: 'jeevan',
-    },
-    {
-      title: 'तुम इतने प्यारे थे',
-      slug: 'tum-itne-pyare-the',
-      openingLines: [
-        'तुम इतने प्यारे थे तुमसे पूरी दुनिया सरल हुई',
-        'हम इतने मुश्किल थे जो तुमसे भी हल न हो पाए',
-      ],
-      bhav: 'प्रेम',
-      bhavSlug: 'prem',
-    },
-  ],
   connection: {
     email: 'info@amanakshar.com',
     poetName: 'अमन अक्षर',
@@ -125,7 +99,38 @@ const homeData = {
   },
 }
 
-export default function Home() {
+export default async function Home() {
+  // Fetch featured poems from database
+  const featuredPoems = await db.poem.findMany({
+    where: {
+      isPublished: true,
+      isFeatured: true,
+    },
+    take: 3,
+    orderBy: { createdAt: 'desc' },
+    include: {
+      bhavs: {
+        include: {
+          bhav: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  })
+
+  // Transform poems for WordSection
+  const displayPoems = featuredPoems.map(poem => ({
+    title: poem.title,
+    slug: poem.slug,
+    openingLines: poem.text.split('\n').filter(line => line.trim()).slice(0, 3),
+    bhav: poem.bhavs[0]?.bhav.name || '',
+    bhavSlug: poem.bhavs[0]?.bhav.slug || '',
+  }))
+
   return (
     <main className="relative">
       {/* Section 1: The Opening */}
@@ -158,12 +163,16 @@ export default function Home() {
         name={homeData.poet.name}
         bio={homeData.poet.bio}
         imageUrl={homeData.poet.imageUrl}
+        signatureUrl={homeData.poet.signatureUrl}
+        personalQuotes={homeData.poet.personalQuotes}
         collaborations={homeData.poet.collaborations}
         achievements={homeData.poet.achievements}
       />
 
-      {/* Section 6: The Word */}
-      <WordSection poems={homeData.featuredPoems} />
+      {/* Section 6: The Word - Only show if there are featured poems */}
+      {displayPoems.length > 0 && (
+        <WordSection poems={displayPoems} />
+      )}
 
       {/* Section 7: The Connection */}
       <ConnectionSection

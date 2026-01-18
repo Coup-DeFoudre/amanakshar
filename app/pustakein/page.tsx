@@ -2,6 +2,8 @@ import { PageContainer } from '@/components/ui/PageContainer'
 import { SectionSpacing } from '@/components/ui/SectionSpacing'
 import { Divider } from '@/components/ui/Divider'
 import { TextButton } from '@/components/ui/TextButton'
+import { OptimizedImage } from '@/components/ui/OptimizedImage'
+import { ImagePlaceholder } from '@/components/ui/ImagePlaceholder'
 import Link from 'next/link'
 
 // Static data - will be replaced with DB queries
@@ -12,7 +14,7 @@ const staticBooks = [
     slug: 'shabdon-ka-safar',
     description: 'प्रेम, जीवन और दर्शन पर कविताओं का पहला संग्रह। इस पुस्तक में वो कविताएँ हैं जो मंच पर सबसे ज़्यादा सराही गईं।',
     year: 2022,
-    coverImage: undefined, // Will be replaced with actual image
+    coverImage: undefined as string | undefined, // Will be replaced with actual image
     purchaseUrl: 'https://amazon.in',
   },
   {
@@ -21,7 +23,7 @@ const staticBooks = [
     slug: 'dil-ki-batein',
     description: 'भक्ति और श्रद्धा की कविताओं का विशेष संग्रह। हर कविता में ईश्वर की खोज और आत्मा की आवाज़।',
     year: 2023,
-    coverImage: undefined,
+    coverImage: undefined as string | undefined,
     purchaseUrl: 'https://amazon.in',
   },
 ]
@@ -46,19 +48,25 @@ export default function PustakeinPage() {
             {staticBooks.map((book, index) => (
               <article key={book.id}>
                 <div className="flex flex-col sm:flex-row gap-6">
-                  {/* Book Cover Placeholder */}
-                  <div className="w-32 h-44 sm:w-40 sm:h-56 bg-bg-secondary rounded-sm flex-shrink-0 flex items-center justify-center">
+                  {/* Book Cover */}
+                  <div className="w-32 h-44 sm:w-40 sm:h-56 flex-shrink-0 rounded-sm overflow-hidden">
                     {book.coverImage ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img 
-                        src={book.coverImage} 
+                      <OptimizedImage
+                        src={book.coverImage}
                         alt={book.title}
-                        className="w-full h-full object-cover rounded-sm"
+                        width={160}
+                        height={224}
+                        objectFit="cover"
+                        fallback="/images/placeholders/book-cover.svg"
+                        className="w-full h-full"
+                        sizes="(max-width: 640px) 128px, 160px"
                       />
                     ) : (
-                      <span className="font-heading text-text-muted text-center px-4">
-                        {book.title}
-                      </span>
+                      <ImagePlaceholder 
+                        type="book" 
+                        label={book.title}
+                        className="w-full h-full"
+                      />
                     )}
                   </div>
                   
@@ -116,4 +124,3 @@ export const metadata = {
   title: 'पुस्तकें — अमन अक्षर',
   description: 'अमन अक्षर की प्रकाशित पुस्तकें और कविता संग्रह।',
 }
-

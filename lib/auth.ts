@@ -1,9 +1,9 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { compare } from "bcryptjs"
+import prisma from "./db"
+import { adminRateLimiter } from "./rate-limit"
 
-// Note: In production, this should query the database
-// For now, using environment variables for simplicity
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     CredentialsProvider({
@@ -12,7 +12,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         if (!credentials?.username || !credentials?.password) {
           return null
         }
@@ -20,24 +20,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const username = credentials.username as string
         const password = credentials.password as string
         
-        // Check against environment variables (simple auth for now)
-        const adminUsername = process.env.ADMIN_USERNAME
-        const adminPassword = process.env.ADMIN_PASSWORD
-        
-        if (username !== adminUsername) {
+        // Rate limiting based on username to prevent brute-force attacks
+        const rateLimitResult = adminRateLimiter.check(5, `login:${username}`)
+        if (!rateLimitResult.success) {
+          console.warn(`Rate limit exceeded for login attempt: ${username}`)
           return null
         }
         
-        // For simple setup, compare plain text
-        // In production with DB, use bcrypt compare
-        if (password !== adminPassword) {
+        try {
+          // Query the Admin table for the user
+          const admin = await prisma.admin.findUnique({
+            where: { username },
+          })
+          
+          if (!admin) {
+            return null
+          }
+          
+          // Verify password using bcrypt
+          const isValidPassword = await compare(password, admin.passwordHash)
+          
+          if (!isValidPassword) {
+            return null
+          }
+          
+          return {
+            id: admin.id,
+            name: admin.username,
+            email: `${admin.username}@amanakshar.com`,
+          }
+        } catch (error) {
+          console.error("Error during authentication:", error)
           return null
-        }
-        
-        return {
-          id: "1",
-          name: "Admin",
-          email: "admin@amanakshar.com",
         }
       },
     }),
@@ -63,4 +77,3 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
 })
-

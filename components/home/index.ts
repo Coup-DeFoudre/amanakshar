@@ -1,4 +1,4 @@
-// New immersive homepage sections
+// Homepage sections
 export { OpeningSection } from './OpeningSection'
 export { VoiceSection } from './VoiceSection'
 export { BhavSection } from './BhavSection'
@@ -6,6 +6,9 @@ export { StageSection } from './StageSection'
 export { PoetSection } from './PoetSection'
 export { WordSection } from './WordSection'
 export { ConnectionSection } from './ConnectionSection'
+
+// Performance optimization components
+export { LazySection, SectionSkeleton } from './LazySection'
 
 // Legacy components (kept for other pages)
 export { HeroSection } from './HeroSection'

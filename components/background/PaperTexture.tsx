@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 /**
  * PaperTexture - Procedurally generated weathered paper background
@@ -8,12 +8,99 @@ import { useEffect, useRef } from 'react'
  * Layers:
  * 1. Base gradient (bright center with random spots)
  * 2. SVG turbulence filter for organic grain
- * 3. Animated noise overlay
+ * 3. Animated noise overlay with pulsing grain
  * 4. Random light spots throughout
  * 5. Floating fiber particles (optional, canvas-based)
+ * 6. Animated grain particles for texture depth
  */
 export function PaperTexture() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const grainCanvasRef = useRef<HTMLCanvasElement>(null)
+  const [grainSeed, setGrainSeed] = useState(0)
+  
+  // Animated grain effect
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
+    // Update grain seed for subtle animation
+    const grainInterval = setInterval(() => {
+      setGrainSeed(prev => (prev + 1) % 100)
+    }, 100) // ~10fps for subtle grain animation
+
+    return () => clearInterval(grainInterval)
+  }, [])
+
+  // Grain canvas animation
+  useEffect(() => {
+    const canvas = grainCanvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const resize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    resize()
+    window.addEventListener('resize', resize)
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) {
+      // Draw static grain
+      drawGrain(ctx, canvas.width, canvas.height, 0)
+      return () => window.removeEventListener('resize', resize)
+    }
+
+    let animationId: number
+    let frame = 0
+
+    const animate = () => {
+      frame++
+      if (frame % 6 === 0) { // ~10fps grain animation
+        drawGrain(ctx, canvas.width, canvas.height, frame)
+      }
+      animationId = requestAnimationFrame(animate)
+    }
+
+    animate()
+
+    return () => {
+      window.removeEventListener('resize', resize)
+      cancelAnimationFrame(animationId)
+    }
+  }, [])
+
+  // Draw animated grain pattern
+  function drawGrain(ctx: CanvasRenderingContext2D, width: number, height: number, seed: number) {
+    const imageData = ctx.createImageData(width, height)
+    const data = imageData.data
+
+    // Simple pseudo-random based on seed
+    const random = (x: number, y: number) => {
+      const n = Math.sin(x * 12.9898 + y * 78.233 + seed) * 43758.5453
+      return n - Math.floor(n)
+    }
+
+    for (let i = 0; i < data.length; i += 4) {
+      const x = (i / 4) % width
+      const y = Math.floor((i / 4) / width)
+      
+      // Sample every 2 pixels for performance
+      if (x % 2 === 0 && y % 2 === 0) {
+        const grain = random(x, y)
+        const intensity = grain * 30 // Subtle grain
+        
+        data[i] = 120 + intensity     // R - brownish
+        data[i + 1] = 100 + intensity // G
+        data[i + 2] = 80 + intensity  // B
+        data[i + 3] = grain * 15      // Very subtle alpha
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0)
+  }
   
   // Floating fiber particles effect
   useEffect(() => {
@@ -41,6 +128,7 @@ export function PaperTexture() {
       speed: number
       opacity: number
       drift: number
+      thickness: number
     }
     
     const fibers: Fiber[] = []
@@ -56,6 +144,7 @@ export function PaperTexture() {
         speed: Math.random() * 0.15 + 0.05,
         opacity: Math.random() * 0.08 + 0.02,
         drift: Math.random() * 0.002 - 0.001,
+        thickness: Math.random() * 0.5 + 0.3,
       })
     }
     
@@ -76,12 +165,18 @@ export function PaperTexture() {
           fiber.x = Math.random() * canvas.width
         }
         
-        // Draw fiber - darker brown fibers on light background
+        // Draw fiber - darker brown fibers on light background with slight blur
         ctx.save()
         ctx.translate(fiber.x, fiber.y)
         ctx.rotate(fiber.angle)
+        
+        // Add subtle shadow for depth
+        ctx.shadowColor = 'rgba(80, 60, 40, 0.1)'
+        ctx.shadowBlur = 2
+        
         ctx.strokeStyle = `rgba(120, 100, 80, ${fiber.opacity})`  // Dark brown fibers
-        ctx.lineWidth = 0.5
+        ctx.lineWidth = fiber.thickness
+        ctx.lineCap = 'round'
         ctx.beginPath()
         ctx.moveTo(-fiber.length / 2, 0)
         ctx.lineTo(fiber.length / 2, 0)
@@ -115,7 +210,7 @@ export function PaperTexture() {
               type="fractalNoise"
               baseFrequency="0.7"
               numOctaves="4"
-              seed="15"
+              seed={15 + grainSeed}
               stitchTiles="stitch"
               result="noise"
             />
@@ -152,13 +247,13 @@ export function PaperTexture() {
             />
           </filter>
           
-          {/* Fine grain overlay */}
+          {/* Fine grain overlay with animation seed */}
           <filter id="fine-grain" x="0%" y="0%" width="100%" height="100%">
             <feTurbulence
               type="fractalNoise"
               baseFrequency="1.5"
               numOctaves="2"
-              seed="100"
+              seed={100 + (grainSeed * 3)}
               result="fineNoise"
             />
             <feColorMatrix
@@ -182,10 +277,13 @@ export function PaperTexture() {
       {/* Layer 3: Animated noise overlay */}
       <div className="paper-noise" />
       
-      {/* Layer 4: Vignette effect */}
+      {/* Layer 4: Animated micro-grain canvas */}
+      <canvas ref={grainCanvasRef} className="paper-micro-grain" />
+      
+      {/* Layer 5: Vignette effect */}
       <div className="paper-vignette" />
       
-      {/* Layer 5: Floating fiber particles */}
+      {/* Layer 6: Floating fiber particles */}
       <canvas ref={canvasRef} className="paper-fibers" />
       
       <style jsx>{`
@@ -290,7 +388,7 @@ export function PaperTexture() {
             url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' fill='%23866450'/%3E%3C/svg%3E");
           opacity: 0.08;  /* Lighter opacity for light background */
           mix-blend-mode: multiply;  /* Better for light backgrounds */
-          animation: grain-drift 20s ease-in-out infinite alternate;
+          animation: grain-drift 20s ease-in-out infinite alternate, grain-pulse 4s ease-in-out infinite;
         }
         
         .paper-noise {
@@ -302,6 +400,16 @@ export function PaperTexture() {
           opacity: 0.04;  /* Very subtle for light background */
           mix-blend-mode: multiply;
           animation: noise-shift 15s ease-in-out infinite alternate-reverse;
+        }
+        
+        .paper-micro-grain {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          opacity: 0.6;
+          mix-blend-mode: multiply;
+          pointer-events: none;
         }
         
         .paper-vignette {
@@ -344,6 +452,15 @@ export function PaperTexture() {
           }
         }
         
+        @keyframes grain-pulse {
+          0%, 100% {
+            opacity: 0.06;
+          }
+          50% {
+            opacity: 0.1;
+          }
+        }
+        
         @keyframes noise-shift {
           0% {
             transform: translate(0, 0);
@@ -368,4 +485,3 @@ export function PaperTexture() {
     </div>
   )
 }
-

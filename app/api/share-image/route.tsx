@@ -16,48 +16,40 @@ export async function GET(request: NextRequest) {
     
     // Generate SVG with satori
     const svg = await satori(
-      {
-        type: 'div',
-        props: {
-          style: {
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#0a0a0a',
-            padding: '60px',
-            fontFamily: 'Noto Serif Devanagari',
-          },
-          children: [
-            {
-              type: 'div',
-              props: {
-                style: {
-                  fontSize: '48px',
-                  color: '#f5f0e8',
-                  textAlign: 'center',
-                  lineHeight: 1.6,
-                  maxWidth: '900px',
-                },
-                children: `"${line}"`,
-              },
-            },
-            {
-              type: 'div',
-              props: {
-                style: {
-                  marginTop: '40px',
-                  fontSize: '24px',
-                  color: '#c9c4bc',
-                },
-                children: `— ${poet}`,
-              },
-            },
-          ],
-        },
-      },
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#0a0a0a',
+          padding: '60px',
+          fontFamily: 'Noto Serif Devanagari',
+        }}
+      >
+        <div
+          style={{
+            fontSize: '48px',
+            color: '#f5f0e8',
+            textAlign: 'center',
+            lineHeight: 1.6,
+            maxWidth: '900px',
+          }}
+        >
+          "{line}"
+        </div>
+        <div
+          style={{
+            marginTop: '40px',
+            fontSize: '24px',
+            color: '#c9c4bc',
+          }}
+        >
+          — {poet}
+        </div>
+      </div>,
       {
         width: 1080,
         height: 1080,
@@ -77,7 +69,7 @@ export async function GET(request: NextRequest) {
       .png()
       .toBuffer()
     
-    return new NextResponse(pngBuffer, {
+    return new NextResponse(new Uint8Array(pngBuffer), {
       headers: {
         'Content-Type': 'image/png',
         'Cache-Control': 'public, max-age=31536000, immutable',
@@ -91,4 +83,3 @@ export async function GET(request: NextRequest) {
     )
   }
 }
-

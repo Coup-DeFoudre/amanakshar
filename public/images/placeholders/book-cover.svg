@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 220" fill="none">
+  <rect width="160" height="220" fill="#1a1a1a"/>
+  <rect x="10" y="10" width="140" height="200" rx="2" stroke="#333" stroke-width="1"/>
+  <path d="M40 100 L120 100" stroke="#444" stroke-width="1"/>
+  <path d="M50 115 L110 115" stroke="#444" stroke-width="1"/>
+  <text x="80" y="145" text-anchor="middle" fill="#666" font-family="serif" font-size="14">पुस्तक</text>
+  <rect x="20" y="30" width="20" height="4" fill="#d4a855" opacity="0.5"/>
+</svg>

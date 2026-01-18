@@ -1,33 +1,128 @@
 @import "tailwindcss";
 
-/* ===== COLOR SYSTEM ===== */
+/* =============================================================================
+   FLUID TYPOGRAPHY SYSTEM
+   =============================================================================
+   
+   This typography system uses CSS clamp() for responsive scaling across all
+   viewport sizes. The formula for clamp() is:
+   clamp(min, preferred, max)
+   
+   Where preferred uses viewport units (vw) for fluid scaling.
+   
+   Key features:
+   - Fluid font sizes that scale smoothly from 320px to 2560px viewports
+   - Optimized letter-spacing and word-spacing for Devanagari script
+   - Enhanced text rendering with optical kerning and ligatures
+   - Line-height presets for different content types (poem, body, headings)
+   
+   Usage examples:
+   - For poem text: font-size: var(--font-size-poem)
+   - For headings: font-size: var(--font-size-3xl)
+   - Apply .text-poem-optimal class for complete poem typography
+   
+   ============================================================================= */
+
+/* ===== MIDNIGHT INK COLOR SYSTEM ===== */
 :root {
-  /* Background - aged paper tones (beige/cream) */
-  --bg-primary: #d4c4b0;  /* Light beige/cream */
-  --bg-secondary: #e8ddd2; /* Even lighter cream */
+  /* Background - Deep ink black with warm undertones */
+  --bg-primary: #0a0908;      /* Deep ink black */
+  --bg-secondary: #121110;    /* Warm charcoal */
+  --bg-elevated: rgba(26, 24, 22, 0.7); /* Card surfaces */
+  --bg-overlay: rgba(10, 9, 8, 0.85);
   
-  /* Text - dark brown for contrast on light background */
-  --text-primary: #2c2416;  /* Dark brown */
-  --text-secondary: #4a3f2f; /* Medium brown */
-  --text-muted: #7a6850;     /* Light brown */
+  /* Text - Warm whites and aged parchment tones */
+  --text-primary: #faf8f5;    /* Warm white */
+  --text-secondary: #d0c4b4;  /* Aged parchment */
+  --text-muted: #958a7e;      /* Faded ink */
   
-  /* Accent */
-  --accent-gold: #8b6914;    /* Darker gold for contrast */
-  --accent-warm: #a0826d;
+  /* Accent - Diya flame gold */
+  --accent-gold: #d6ab58;     /* Primary gold */
+  --accent-warm: #c27f42;     /* Deep amber */
+  --accent-glow: rgba(212, 168, 85, 0.18);
+  --accent-rose: #e8596b;     /* Prem (Love) */
+  --accent-emerald: #4ade80;  /* Jeevan (Life) */
+  --accent-indigo: #818cf8;   /* Darshan (Philosophy) */
   
-  /* Dividers - dark brown for light background */
-  --divider: rgba(120, 100, 80, 0.15);
-  --divider-strong: rgba(100, 80, 60, 0.25);
+  /* Dividers - Subtle warm tones */
+  --divider: rgba(212, 168, 85, 0.12);
+  --divider-strong: rgba(212, 168, 85, 0.22);
+  
+  /* Glow effects */
+  --glow-gold: 0 0 20px rgba(212, 168, 85, 0.3);
+  --glow-gold-strong: 0 0 40px rgba(212, 168, 85, 0.5);
+  
+  /* ==========================================================================
+     FLUID TYPOGRAPHY SCALE
+     ========================================================================== */
+  
+  /* Font sizes using clamp() for fluid responsive scaling */
+  --font-size-xs: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
+  --font-size-sm: clamp(0.875rem, 0.825rem + 0.25vw, 1rem);
+  --font-size-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --font-size-lg: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  --font-size-xl: clamp(1.25rem, 1.125rem + 0.5vw, 1.625rem);
+  --font-size-2xl: clamp(1.5rem, 1.25rem + 1vw, 2.25rem);
+  --font-size-3xl: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  
+  /* Special font size for poem text - slightly larger for readability */
+  --font-size-poem: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  
+  /* ==========================================================================
+     FLUID LINE-HEIGHT SCALE
+     ========================================================================== */
+  
+  /* Line heights optimized for different content types */
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  --line-height-loose: 2;
+  
+  /* Fluid line heights using clamp() */
+  --line-height-body: clamp(1.6, 1.5 + 0.2vw, 1.75);
+  --line-height-poem: clamp(1.9, 1.8 + 0.3vw, 2.2);
+  --line-height-heading: clamp(1.2, 1.15 + 0.1vw, 1.35);
+  
+  /* ==========================================================================
+     LETTER-SPACING SCALE (DEVANAGARI OPTIMIZED)
+     ========================================================================== */
+  
+  /* Letter spacing presets */
+  --letter-spacing-tighter: -0.02em;
+  --letter-spacing-tight: -0.01em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.01em;
+  --letter-spacing-wider: 0.02em;
+  
+  /* Devanagari-specific letter spacing - tighter for aesthetic, but readable */
+  --letter-spacing-devanagari: clamp(-0.01em, -0.005em + 0.005vw, 0.005em);
+  
+  /* Heading letter spacing - tighter for visual impact */
+  --letter-spacing-heading: clamp(-0.02em, -0.015em + 0.005vw, -0.01em);
+  
+  /* ==========================================================================
+     WORD-SPACING (DEVANAGARI OPTIMIZED)
+     ========================================================================== */
+  
+  /* Word spacing for proper Hindi text separation */
+  --word-spacing-devanagari: clamp(0.05em, 0.03em + 0.02vw, 0.08em);
 }
 
 @theme inline {
   --color-bg-primary: var(--bg-primary);
   --color-bg-secondary: var(--bg-secondary);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-overlay: var(--bg-overlay);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
   --color-accent-gold: var(--accent-gold);
   --color-accent-warm: var(--accent-warm);
+  --color-accent-glow: var(--accent-glow);
+  --color-accent-rose: var(--accent-rose);
+  --color-accent-emerald: var(--accent-emerald);
+  --color-accent-indigo: var(--accent-indigo);
   --color-divider: var(--divider);
   --color-divider-strong: var(--divider-strong);
   
@@ -37,50 +132,171 @@
   --font-ui: 'Hind', sans-serif;
 }
 
-/* ===== BASE STYLES ===== */
+/* ===== BASE STYLES WITH TYPOGRAPHY OPTIMIZATIONS ===== */
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent text size adjustment on orientation change */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  
+  /* ==========================================================================
+     OPTICAL KERNING AND TEXT RENDERING
+     Enables optimal character spacing and ligature support for Devanagari
+     ========================================================================== */
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
+  font-kerning: normal;
 }
 
 body {
+  background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-ui);
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
   position: relative;
-  /* Background handled by procedural PaperTexture component */
-  background-color: var(--bg-primary);
   overflow-x: hidden;
+  
+  /* Fluid body font size and line height */
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-body);
+  
+  /* Padding for bottom nav on mobile */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  
+  /* Mobile typography enhancement - increase line-height by 0.1 */
+  @media (max-width: 768px) {
+    line-height: calc(var(--line-height-body) + 0.1);
+  }
 }
 
 /* ===== TYPOGRAPHY ===== */
 
-/* Poem body text */
 .font-poem {
   font-family: var(--font-poem);
+  font-size: var(--font-size-poem);
+  line-height: var(--line-height-poem);
+  
+  /* Devanagari-specific optimizations */
+  letter-spacing: var(--letter-spacing-devanagari);
+  word-spacing: var(--word-spacing-devanagari);
+  font-variant-ligatures: common-ligatures contextual;
+  text-rendering: optimizeLegibility;
 }
 
-/* Headings and titles */
 .font-heading {
   font-family: var(--font-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  line-height: var(--line-height-heading);
+  
+  /* Use variable font weight if available */
+  font-weight: 400;
 }
 
-/* UI elements */
 .font-ui {
   font-family: var(--font-ui);
+}
+
+/* =============================================================================
+   TYPOGRAPHY UTILITY CLASSES
+   ============================================================================= */
+
+.text-tight {
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.text-relaxed {
+  letter-spacing: 0.01em;
+  line-height: 1.8;
+}
+
+.text-poem-optimal {
+  letter-spacing: var(--letter-spacing-devanagari);
+  line-height: var(--line-height-poem);
+  word-spacing: var(--word-spacing-devanagari);
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
+  font-variant-ligatures: common-ligatures contextual;
+  
+  /* Text balance and orphan prevention */
+  text-wrap: balance;
+  hyphens: none;
+  overflow-wrap: break-word;
+  hanging-punctuation: first last;
+}
+
+.text-ui-optimal {
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+
+.text-heading-optimal {
+  letter-spacing: var(--letter-spacing-heading);
+  line-height: var(--line-height-heading);
+  text-wrap: balance;
+  hyphens: none;
+}
+
+/* =============================================================================
+   FLUID HEADING STYLES
+   ============================================================================= */
+
+h1 {
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  text-wrap: balance;
+}
+
+h2 {
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  text-wrap: balance;
+}
+
+h3 {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+}
+
+/* ===== GLOW UTILITIES ===== */
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(212, 168, 85, 0.5), 0 0 40px rgba(212, 168, 85, 0.3);
+}
+
+.text-glow-subtle {
+  text-shadow: 0 0 10px rgba(212, 168, 85, 0.3);
+}
+
+.box-glow {
+  box-shadow: var(--glow-gold);
+}
+
+.box-glow-strong {
+  box-shadow: var(--glow-gold-strong);
 }
 
 /* ===== POEM LINE STYLING ===== */
 .poem-line {
   font-family: var(--font-poem);
-  line-height: 2;
+  line-height: var(--line-height-poem, 2);
+  letter-spacing: var(--letter-spacing-devanagari, -0.005em);
+  word-spacing: var(--word-spacing-devanagari);
   display: block;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
 }
 
 .poem-line::first-letter {
-  font-size: 1.12em;
-  /* Same font, same color, just slightly larger */
+  font-size: clamp(1.1em, 1.08em + 0.1vw, 1.15em);
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 /* ===== DIVIDERS ===== */
@@ -97,6 +313,13 @@ body {
   border: none;
 }
 
+.divider-glow {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+  border: none;
+  opacity: 0.5;
+}
+
 /* ===== TEXT BUTTON STYLES ===== */
 .text-button {
   font-family: var(--font-ui);
@@ -108,18 +331,18 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: color 0.2s ease;
+  transition: color 0.3s ease;
 }
 
 .text-button:hover {
-  color: var(--text-primary);
+  color: var(--accent-gold);
 }
 
 /* ===== CONTAINER ===== */
 .page-container {
-  max-width: 42rem; /* Notebook-like width */
+  max-width: 42rem;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 @media (min-width: 640px) {
@@ -128,15 +351,111 @@ body {
   }
 }
 
+/* ===== MOBILE-SPECIFIC UTILITIES ===== */
+
+/* Touch manipulation for better touch response */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Minimum touch target size (44x44 per WCAG) */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Safe area padding for notched devices */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Mobile-optimized spacing */
+@media (max-width: 640px) {
+  .section-padding {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  
+  .section-padding-lg {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+  
+  /* Mobile-specific poem line adjustments */
+  .poem-line {
+    letter-spacing: clamp(-0.005em, 0em, 0.01em);
+  }
+  
+  /* Account for bottom navigation */
+  body {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (min-width: 641px) {
+  .section-padding {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+  
+  .section-padding-lg {
+    padding-top: 8rem;
+    padding-bottom: 8rem;
+  }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1024px) {
+  .poem-line {
+    letter-spacing: clamp(-0.015em, -0.01em, -0.005em);
+    line-height: clamp(2, 1.9 + 0.2vw, 2.3);
+  }
+}
+
+/* Active state for touch devices */
+@media (hover: none) {
+  .card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  button:active,
+  a:active {
+    opacity: 0.8;
+  }
+}
+
 /* ===== SELECTION ===== */
 ::selection {
-  background: rgba(139, 105, 20, 0.2);  /* Dark gold selection on light bg */
+  background: rgba(212, 168, 85, 0.3);
   color: var(--text-primary);
 }
 
 /* ===== SCROLLBAR ===== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-muted) var(--bg-secondary);
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -145,26 +464,43 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: var(--text-muted);
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  background: var(--accent-gold);
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== CARD STYLES ===== */
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--divider-strong);
 }
 
 /* ===== YOUTUBE EMBED ===== */
 .youtube-embed {
   position: relative;
   width: 100%;
-  padding-bottom: 56.25%; /* 16:9 */
-  background: var(--text-primary);  /* Dark frame on light background */
+  padding-bottom: 56.25%;
+  background: var(--bg-secondary);
   overflow: hidden;
-  /* Elegant frame */
-  border: 2px solid var(--text-muted);
-  box-shadow: 
-    inset 0 0 20px rgba(120, 100, 80, 0.2),
-    0 4px 20px rgba(100, 80, 60, 0.3),
-    0 8px 30px rgba(80, 60, 40, 0.2);
+  border-radius: 8px;
 }
 
 .youtube-embed iframe {
@@ -176,7 +512,6 @@ body {
   border: none;
 }
 
-/* Facade button (before video plays) */
 .youtube-facade {
   position: absolute;
   top: 0;
@@ -189,7 +524,6 @@ body {
   padding: 0;
 }
 
-/* Thumbnail background */
 .youtube-thumbnail {
   position: absolute;
   top: 0;
@@ -199,48 +533,29 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: grayscale(20%) brightness(0.75) contrast(1.1);
 }
 
-/* Dark overlay for blending with paper texture */
 .youtube-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    135deg,
-    rgba(10, 9, 8, 0.4) 0%,
-    rgba(20, 18, 15, 0.2) 50%,
-    rgba(10, 9, 8, 0.4) 100%
-  );
-  /* Subtle vignette */
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.3);
 }
 
-/* Subtle play button */
 .youtube-play-btn {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 68px;
-  height: 48px;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  width: 72px;
+  height: 52px;
+  transition: transform 0.2s ease;
 }
 
 .youtube-facade:hover .youtube-play-btn {
   transform: translate(-50%, -50%) scale(1.1);
-}
-
-.youtube-facade:hover .youtube-overlay {
-  background: linear-gradient(
-    135deg,
-    rgba(10, 9, 8, 0.6) 0%,
-    rgba(20, 18, 15, 0.4) 50%,
-    rgba(10, 9, 8, 0.6) 100%
-  );
 }
 
 .youtube-play-icon {
@@ -256,7 +571,6 @@ body {
 
 /* ===== ACCESSIBILITY ===== */
 
-/* Skip to content link */
 .skip-link {
   position: absolute;
   top: -100%;
@@ -287,18 +601,118 @@ body {
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   :root {
-    --bg-primary: #ffffff;
-    --bg-secondary: #f5f5f5;
-    --text-primary: #000000;
-    --text-secondary: #333333;
-    --divider: rgba(0, 0, 0, 0.3);
-    --divider-strong: rgba(0, 0, 0, 0.5);
+    --bg-primary: #000000;
+    --bg-secondary: #111111;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --divider: rgba(255, 255, 255, 0.3);
+    --divider-strong: rgba(255, 255, 255, 0.5);
   }
+}
+
+/* ===== GRADIENT TEXT ===== */
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-warm));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== MICRO-INTERACTIONS ===== */
+
+/* Subtle lift on hover */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Scale on hover */
+.hover-scale {
+  transition: transform 0.2s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Underline animation */
+.hover-underline {
+  position: relative;
+}
+
+.hover-underline::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--accent-gold);
+  transition: width 0.3s ease;
+}
+
+.hover-underline:hover::after {
+  width: 100%;
+}
+
+/* Fade in animation */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger animation delays */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* Shimmer loading effect */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-elevated) 0%,
+    var(--bg-secondary) 50%,
+    var(--bg-elevated) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ===== GLASS EFFECT ===== */
+.glass {
+  background: rgba(21, 19, 17, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--divider);
 }
 
 /* ===== PRINT STYLES ===== */
 @media print {
-  /* Hide non-essential elements */
   body::before,
   nav,
   footer,
@@ -314,7 +728,6 @@ body {
     font-size: 12pt;
   }
   
-  /* Reset colors for print */
   .font-heading,
   .font-poem,
   .font-ui,
@@ -322,17 +735,11 @@ body {
     color: black !important;
   }
   
-  /* Poem styling for print */
   .poem-line {
     line-height: 1.8;
     font-size: 14pt;
   }
   
-  .poem-line::first-letter {
-    font-size: 1.15em;
-  }
-  
-  /* Page breaks */
   h1 {
     page-break-after: avoid;
   }
@@ -341,14 +748,107 @@ body {
     page-break-inside: avoid;
   }
   
-  /* Print header */
   @page {
     margin: 2cm;
   }
   
-  /* Container for print */
   .page-container {
     max-width: 100%;
     padding: 0;
   }
+}
+
+/* ===== REACT CALENDAR STYLES ===== */
+.react-calendar {
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+}
+
+.react-calendar__navigation {
+  display: flex;
+  height: 44px;
+  margin-bottom: 1em;
+}
+
+.react-calendar__navigation button {
+  min-width: 44px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: rgba(212, 168, 85, 0.1);
+  color: var(--accent-gold);
+}
+
+.react-calendar__navigation button[disabled] {
+  background-color: transparent;
+  opacity: 0.5;
+}
+
+.react-calendar__month-view__weekdays {
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 0.75em;
+  color: var(--text-muted);
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  padding: 0.5em;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: var(--text-secondary);
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.react-calendar__tile {
+  max-width: 100%;
+  padding: 10px 6.6667px;
+  background: transparent;
+  text-align: center;
+  line-height: 16px;
+  font-size: 0.833em;
+  color: var(--text-primary);
+  border-radius: 4px;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: rgba(212, 168, 85, 0.1);
+  color: var(--accent-gold);
+}
+
+.react-calendar__tile--now {
+  background: rgba(212, 168, 85, 0.15);
+  color: var(--accent-gold);
+}
+
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus {
+  background: rgba(212, 168, 85, 0.25);
+}
+
+.react-calendar__tile--active {
+  background: rgba(212, 168, 85, 0.2);
+  color: var(--accent-gold);
+}
+
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background: rgba(212, 168, 85, 0.3);
 }

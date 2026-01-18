@@ -1,8 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import { TextButton } from '@/components/ui/TextButton'
+import { OptimizedImage } from '@/components/ui/OptimizedImage'
 
 interface AboutPreviewSectionProps {
   name: string
@@ -23,12 +23,14 @@ export function AboutPreviewSection({ name, bio, imageUrl }: AboutPreviewSection
         {/* Photo */}
         {imageUrl && (
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-sm overflow-hidden flex-shrink-0 bg-bg-secondary">
-            <Image
+            <OptimizedImage
               src={imageUrl}
               alt={name}
               width={128}
               height={128}
-              className="w-full h-full object-cover"
+              objectFit="cover"
+              fallback="/images/placeholders/poet.svg"
+              sizes="(max-width: 640px) 96px, 128px"
             />
           </div>
         )}
@@ -51,4 +53,3 @@ export function AboutPreviewSection({ name, bio, imageUrl }: AboutPreviewSection
     </section>
   )
 }
-
