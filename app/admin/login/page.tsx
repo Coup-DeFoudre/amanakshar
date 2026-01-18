@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { PageContainer } from '@/components/ui/PageContainer'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -30,7 +29,7 @@ export default function AdminLoginPage() {
         router.push('/admin')
         router.refresh()
       }
-    } catch (err) {
+    } catch {
       setError('कुछ गलत हो गया')
     } finally {
       setIsLoading(false)
@@ -38,59 +37,56 @@ export default function AdminLoginPage() {
   }
   
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
-      <PageContainer>
-        <div className="max-w-sm mx-auto">
-          <h1 className="font-heading text-3xl text-text-primary text-center mb-8">
-            प्रबंधक लॉगिन
-          </h1>
+    <main className="min-h-screen flex items-center justify-center p-4 bg-bg-primary">
+      <div className="w-full max-w-sm">
+        <h1 className="font-heading text-3xl text-text-primary text-center mb-8">
+          प्रबंधक लॉगिन
+        </h1>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <p className="text-red-400 text-center font-ui text-sm bg-red-400/10 py-2 rounded">
+              {error}
+            </p>
+          )}
           
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <p className="text-red-400 text-center font-ui text-sm bg-red-400/10 py-2 rounded">
-                {error}
-              </p>
-            )}
-            
-            <div>
-              <label htmlFor="username" className="block font-ui text-text-secondary text-sm mb-2">
-                उपयोगकर्ता नाम
-              </label>
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                className="w-full bg-transparent border-b border-divider-strong py-2 font-ui text-text-primary focus:outline-none focus:border-accent-gold transition-colors"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="password" className="block font-ui text-text-secondary text-sm mb-2">
-                पासवर्ड
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full bg-transparent border-b border-divider-strong py-2 font-ui text-text-primary focus:outline-none focus:border-accent-gold transition-colors"
-              />
-            </div>
-            
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 font-ui text-text-primary border border-divider-strong rounded-sm hover:bg-bg-secondary transition-colors disabled:opacity-50"
-            >
-              {isLoading ? 'प्रवेश हो रहा है...' : 'प्रवेश करें'}
-            </button>
-          </form>
-        </div>
-      </PageContainer>
+          <div>
+            <label htmlFor="username" className="block font-ui text-text-secondary text-sm mb-2">
+              उपयोगकर्ता नाम
+            </label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="w-full bg-transparent border-b border-divider-strong py-2 font-ui text-text-primary focus:outline-none focus:border-accent-gold transition-colors"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="password" className="block font-ui text-text-secondary text-sm mb-2">
+              पासवर्ड
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full bg-transparent border-b border-divider-strong py-2 font-ui text-text-primary focus:outline-none focus:border-accent-gold transition-colors"
+            />
+          </div>
+          
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-3 font-ui text-text-primary border border-divider-strong rounded-sm hover:bg-bg-secondary transition-colors disabled:opacity-50"
+          >
+            {isLoading ? 'प्रवेश हो रहा है...' : 'प्रवेश करें'}
+          </button>
+        </form>
+      </div>
     </main>
   )
 }
-

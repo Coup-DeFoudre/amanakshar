@@ -1,23 +1,98 @@
 {
   "name": "अमन अक्षर — कवि",
   "short_name": "अमन अक्षर",
-  "description": "कविताओं, प्रस्तुतियों और पुस्तकों का साहित्यिक घर",
+  "description": "अमन अक्षर की कविताओं, मंचीय प्रस्तुतियों और पुस्तकों का साहित्यिक घर। ऑफ़लाइन पढ़ने की सुविधा के साथ।",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
+  "background_color": "#0a0908",
+  "theme_color": "#0a0908",
   "orientation": "portrait-primary",
+  "lang": "hi",
+  "dir": "ltr",
+  "categories": ["books", "entertainment", "lifestyle"],
+  "iarc_rating_id": "",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icons/icon-192.svg",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512.svg",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "/images/screenshots/home-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Homepage - Desktop View"
+    },
+    {
+      "src": "/images/screenshots/home-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Homepage - Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "कविताएँ पढ़ें",
+      "short_name": "कविताएँ",
+      "description": "सभी कविताएँ देखें",
+      "url": "/kavitayen",
+      "icons": [{"src": "/icons/icon-192.svg", "sizes": "192x192"}]
+    },
+    {
+      "name": "आगामी कार्यक्रम",
+      "short_name": "आयोजन",
+      "description": "आने वाले कवि सम्मेलन",
+      "url": "/prastutiyaan-live",
+      "icons": [{"src": "/icons/icon-192.svg", "sizes": "192x192"}]
+    },
+    {
+      "name": "संपर्क करें",
+      "short_name": "संपर्क",
+      "description": "कवि को आमंत्रित करें",
+      "url": "/sampark",
+      "icons": [{"src": "/icons/icon-192.svg", "sizes": "192x192"}]
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 }
-

@@ -4,229 +4,298 @@ import { SectionSpacing } from '@/components/ui/SectionSpacing'
 import { PoemText } from '@/components/ui/PoemText'
 import { YouTubeEmbed } from '@/components/ui/YouTubeEmbed'
 import { TextButton } from '@/components/ui/TextButton'
-import { PoemNavigation, RelatedPoems } from '@/components/poems'
+import { PoemNavigation, RelatedPoems, LikeButton, OfflineIndicator } from '@/components/poems'
+import { PoemJsonLd, BreadcrumbJsonLd } from '@/components/seo'
 import { Metadata } from 'next'
-
-// Static data - will be replaced with DB queries
-const staticPoems = [
-  {
-    id: '1',
-    title: 'कुछ शब्द सिर्फ़ कहे जाते',
-    slug: 'kuch-shabd-sirf-kahe-jaate',
-    poetName: 'अमन अक्षर',
-    text: `कुछ शब्द सिर्फ़ कहे जाते
-जिए जाते हैं
-
-दिल की गहराइयों में उतरते
-सांसों में बसते हैं
-
-कुछ शब्द सिर्फ़ सुने जाते
-महसूस किए जाते हैं
-
-वो शब्द जो आंखों से निकलते हैं
-होंठों तक नहीं आते`,
-    bhavs: ['प्रेम'],
-    youtubeUrl: undefined,
-    firstPerformancePlace: 'इंदौर',
-    firstPerformanceYear: 2023,
-    bookTitle: undefined,
-  },
-  {
-    id: '2',
-    title: 'दिल से निकली बात',
-    slug: 'dil-se-nikli-baat',
-    poetName: 'अमन अक्षर',
-    text: `रात थी मन्नतों की
-जब दिल से आवाज़ दी
-
-झुठ वाले क्या जानें वो
-जो सिर्फ़ दुआएँ जिए थे
-
-दिल से निकली बात
-शब्दों में ढली जाती है
-
-और कविता बन जाती है`,
-    bhavs: ['प्रेम', 'जीवन'],
-    youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    firstPerformancePlace: 'भोपाल',
-    firstPerformanceYear: 2023,
-    bookTitle: undefined,
-  },
-  {
-    id: '3',
-    title: 'भक्ति का सार',
-    slug: 'bhakti-ka-saar',
-    poetName: 'अमन अक्षर',
-    text: `जब मन में बसे प्रभु का नाम
-तो कैसी चिंता, कैसा काम
-
-हर श्वास में उनका ध्यान
-यही है सच्ची पहचान
-
-भक्ति का सार यही है
-प्रेम में खो जाना
-
-जब तुम नहीं रहते
-तब वो मिल जाते हैं`,
-    bhavs: ['भक्ति'],
-    youtubeUrl: undefined,
-    firstPerformancePlace: 'उज्जैन',
-    firstPerformanceYear: 2022,
-    bookTitle: undefined,
-  },
-  {
-    id: '4',
-    title: 'जीवन की राह',
-    slug: 'jeevan-ki-raah',
-    poetName: 'अमन अक्षर',
-    text: `कठिन है राह, पर चलना है
-गिरना है, संभलना है
-
-यही जीवन का सार है
-हर पल नया विचार है
-
-मंज़िल की चिंता मत करो
-बस राह पर चलते रहो
-
-जो चलता है वो पहुँचता है
-जो रुकता है वो बिछड़ जाता है`,
-    bhavs: ['जीवन', 'दर्शन'],
-    youtubeUrl: undefined,
-    firstPerformancePlace: 'इंदौर',
-    firstPerformanceYear: 2022,
-    bookTitle: undefined,
-  },
-]
-
-function getPoem(slug: string) {
-  return staticPoems.find(p => p.slug === slug)
-}
-
-function getAdjacentPoems(currentSlug: string) {
-  const currentIndex = staticPoems.findIndex(p => p.slug === currentSlug)
-  return {
-    prev: currentIndex > 0 ? staticPoems[currentIndex - 1] : undefined,
-    next: currentIndex < staticPoems.length - 1 ? staticPoems[currentIndex + 1] : undefined,
-  }
-}
-
-function getRelatedPoems(currentSlug: string, bhavs: string[]) {
-  return staticPoems
-    .filter(p => p.slug !== currentSlug && p.bhavs.some(b => bhavs.includes(b)))
-    .slice(0, 3)
-}
+import { db } from '@/lib/db'
+import { generatePoemMetadata } from '@/lib/metadata'
 
 interface PageProps {
   params: Promise<{ slug: string }>
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://amanakshar.com'
+
+async function getPoem(slug: string) {
+  const poem = await db.poem.findUnique({
+    where: { slug, isPublished: true },
+    include: {
+      bhavs: {
+        include: {
+          bhav: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      book: {
+        select: {
+          title: true,
+          slug: true,
+        },
+      },
+    },
+  })
+  return poem
+}
+
+async function getAdjacentPoems(currentSlug: string) {
+  // Get all published poems ordered by creation date
+  const poems = await db.poem.findMany({
+    where: { isPublished: true },
+    orderBy: { createdAt: 'desc' },
+    select: { slug: true, title: true },
+  })
+  
+  const currentIndex = poems.findIndex(p => p.slug === currentSlug)
+  
+  return {
+    prev: currentIndex > 0 ? poems[currentIndex - 1] : undefined,
+    next: currentIndex < poems.length - 1 ? poems[currentIndex + 1] : undefined,
+  }
+}
+
+async function getRelatedPoems(currentSlug: string, bhavSlugs: string[]) {
+  if (bhavSlugs.length === 0) return []
+  
+  const relatedPoems = await db.poem.findMany({
+    where: {
+      isPublished: true,
+      slug: { not: currentSlug },
+      bhavs: {
+        some: {
+          bhav: {
+            slug: { in: bhavSlugs },
+          },
+        },
+      },
+    },
+    take: 3,
+    select: {
+      title: true,
+      slug: true,
+    },
+  })
+  
+  return relatedPoems
+}
+
 export default async function KavitaPage({ params }: PageProps) {
   const { slug } = await params
-  const poem = getPoem(slug)
+  const poem = await getPoem(slug)
   
   if (!poem) {
     notFound()
   }
+
+  const bhavNames = poem.bhavs.map(b => b.bhav.name)
+  const bhavSlugs = poem.bhavs.map(b => b.bhav.slug)
   
-  const { prev, next } = getAdjacentPoems(slug)
-  const relatedPoems = getRelatedPoems(slug, poem.bhavs)
+  const { prev, next } = await getAdjacentPoems(slug)
+  const relatedPoems = await getRelatedPoems(slug, bhavSlugs)
+  
+  // Breadcrumb data
+  const breadcrumbs = [
+    { name: 'घर', url: '/' },
+    { name: 'कविताएँ', url: '/kavitayen' },
+    { name: poem.title, url: `/kavita/${slug}` },
+  ]
   
   return (
-    <main className="min-h-screen">
-      <PageContainer>
-        <SectionSpacing size="lg">
-          {/* Poem Header */}
-          <header className="text-center mb-12">
-            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl text-text-primary mb-4">
-              {poem.title}
-            </h1>
-            <p className="font-ui text-text-secondary">
-              — {poem.poetName}
-            </p>
-          </header>
-          
-          {/* YouTube Embed (if available) */}
-          {poem.youtubeUrl && (
-            <div className="mb-12">
-              <YouTubeEmbed url={poem.youtubeUrl} title={poem.title} />
-              <div className="mt-4 text-center">
-                <TextButton icon="▶">
-                  सुनिए
+    <>
+      {/* Structured Data */}
+      <PoemJsonLd
+        title={poem.title}
+        slug={slug}
+        text={poem.text}
+        poetName={poem.poetName}
+        bhav={bhavNames[0]}
+        datePublished={poem.createdAt}
+      />
+      <BreadcrumbJsonLd items={breadcrumbs} />
+      
+      <main 
+        className="min-h-screen"
+        aria-label={`कविता: ${poem.title}`}
+      >
+        <PageContainer>
+          <SectionSpacing size="lg">
+            {/* Breadcrumb Navigation */}
+            <nav 
+              aria-label="ब्रेडक्रम्ब"
+              className="text-sm font-ui text-text-muted mb-8"
+            >
+              <ol className="flex items-center gap-2" role="list">
+                {breadcrumbs.map((crumb, index) => (
+                  <li key={crumb.url} className="flex items-center gap-2">
+                    {index > 0 && <span aria-hidden="true">/</span>}
+                    {index === breadcrumbs.length - 1 ? (
+                      <span className="text-text-secondary" aria-current="page">
+                        {crumb.name}
+                      </span>
+                    ) : (
+                      <a 
+                        href={crumb.url}
+                        className="hover:text-accent-gold transition-colors"
+                      >
+                        {crumb.name}
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </nav>
+            
+            {/* Poem Header with Enhanced Typography */}
+            <header className="text-center mb-12">
+              <h1 
+                className="font-heading text-text-primary mb-4 text-heading-optimal"
+                style={{ 
+                  fontSize: 'var(--font-size-3xl)',
+                  lineHeight: 'var(--line-height-heading)',
+                  letterSpacing: 'var(--letter-spacing-heading)',
+                  textWrap: 'balance',
+                } as React.CSSProperties}
+              >
+                {poem.title}
+              </h1>
+              <p 
+                className="font-ui text-text-secondary"
+                style={{ 
+                  fontSize: 'var(--font-size-base)',
+                  letterSpacing: '0.01em',
+                }}
+              >
+                — {poem.poetName}
+              </p>
+              
+              {/* Offline Indicator */}
+              <div className="mt-4 flex justify-center">
+                <OfflineIndicator poemSlug={slug} poemTitle={poem.title} />
+              </div>
+            </header>
+            
+            {/* YouTube Embed (if available) */}
+            {poem.youtubeUrl && (
+              <div className="mb-12">
+                <YouTubeEmbed url={poem.youtubeUrl} title={poem.title} />
+                <div className="mt-4 text-center">
+                  <TextButton icon="▶" aria-label={`${poem.title} सुनें`}>
+                    सुनिए
+                  </TextButton>
+                </div>
+              </div>
+            )}
+            
+            {/* Poem Text with Optimal Reading Experience */}
+            <article 
+              lang="hi"
+              aria-label="कविता का पाठ"
+              style={{ 
+                maxWidth: 'min(65ch, 100%)',
+                margin: '0 auto',
+                overflowWrap: 'break-word',
+              }}
+            >
+              <PoemText text={poem.text} />
+            </article>
+            
+            {/* Metadata with Enhanced Typography */}
+            <div className="mt-12 pt-8 border-t border-divider">
+              <div 
+                className="flex flex-wrap justify-center gap-4 font-ui text-text-muted"
+                aria-label="कविता की जानकारी"
+                style={{ fontSize: 'var(--font-size-sm)' }}
+              >
+                {/* Bhav Tags */}
+                {bhavNames.map((bhav) => (
+                  <span 
+                    key={bhav} 
+                    className="flex items-center gap-1"
+                    style={{ fontSize: 'var(--font-size-sm)' }}
+                  >
+                    <span aria-hidden="true">भाव:</span>
+                    <span className="text-text-secondary">{bhav}</span>
+                  </span>
+                ))}
+                
+                {/* First Performance */}
+                {poem.firstPerformancePlace && (
+                  <span 
+                    className="flex items-center gap-1"
+                    style={{ fontSize: 'var(--font-size-sm)' }}
+                  >
+                    प्रथम प्रस्तुति: 
+                    <span className="text-text-secondary">
+                      {poem.firstPerformancePlace}
+                      {poem.firstPerformanceYear && `, ${poem.firstPerformanceYear}`}
+                    </span>
+                  </span>
+                )}
+                
+                {/* Book Reference */}
+                {poem.book && (
+                  <span 
+                    className="flex items-center gap-1"
+                    style={{ fontSize: 'var(--font-size-sm)' }}
+                  >
+                    पुस्तक: <span className="text-text-secondary">{poem.book.title}</span>
+                  </span>
+                )}
+              </div>
+              
+              {/* Like and Share Actions */}
+              <div 
+                className="mt-6 flex items-center justify-center gap-6"
+                role="group"
+                aria-label="कविता क्रियाएँ"
+              >
+                <LikeButton poemSlug={slug} />
+                <TextButton icon="↗" aria-label="एक पंक्ति साझा करें">
+                  एक पंक्ति साझा करें
                 </TextButton>
               </div>
             </div>
-          )}
-          
-          {/* Poem Text */}
-          <article className="max-w-xl mx-auto">
-            <PoemText text={poem.text} />
-          </article>
-          
-          {/* Metadata */}
-          <div className="mt-12 pt-8 border-t border-divider">
-            <div className="flex flex-wrap justify-center gap-4 text-sm font-ui text-text-muted">
-              {/* Bhav Tags */}
-              {poem.bhavs.map((bhav) => (
-                <span key={bhav} className="flex items-center gap-1">
-                  भाव: <span className="text-text-secondary">{bhav}</span>
-                </span>
-              ))}
-              
-              {/* First Performance */}
-              {poem.firstPerformancePlace && (
-                <span className="flex items-center gap-1">
-                  प्रथम प्रस्तुति: 
-                  <span className="text-text-secondary">
-                    {poem.firstPerformancePlace}
-                    {poem.firstPerformanceYear && `, ${poem.firstPerformanceYear}`}
-                  </span>
-                </span>
-              )}
-              
-              {/* Book Reference */}
-              {poem.bookTitle && (
-                <span className="flex items-center gap-1">
-                  पुस्तक: <span className="text-text-secondary">{poem.bookTitle}</span>
-                </span>
-              )}
-            </div>
             
-            {/* Share Action */}
-            <div className="mt-6 text-center">
-              <TextButton icon="↗">
-                एक पंक्ति साझा करें
-              </TextButton>
-            </div>
-          </div>
-          
-          {/* Related Poems */}
-          <RelatedPoems 
-            poems={relatedPoems.map(p => ({ title: p.title, slug: p.slug }))} 
-            currentBhav={poem.bhavs[0]}
-          />
-          
-          {/* Navigation */}
-          <PoemNavigation
-            prevPoem={prev ? { title: prev.title, slug: prev.slug } : undefined}
-            nextPoem={next ? { title: next.title, slug: next.slug } : undefined}
-          />
-        </SectionSpacing>
-      </PageContainer>
-    </main>
+            {/* Related Poems */}
+            {relatedPoems.length > 0 && (
+              <RelatedPoems 
+                poems={relatedPoems} 
+                currentBhav={bhavNames[0] || ''}
+              />
+            )}
+            
+            {/* Navigation */}
+            <PoemNavigation
+              prevPoem={prev}
+              nextPoem={next}
+            />
+          </SectionSpacing>
+        </PageContainer>
+      </main>
+    </>
   )
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  const poem = getPoem(slug)
+  const poem = await getPoem(slug)
   
   if (!poem) {
     return { title: 'कविता नहीं मिली' }
   }
   
-  return {
-    title: `${poem.title} — अमन अक्षर`,
-    description: poem.text.substring(0, 160).replace(/\n/g, ' '),
-  }
+  const bhavName = poem.bhavs[0]?.bhav.name
+  const ogImageUrl = `/api/og/poem?title=${encodeURIComponent(poem.title)}&poet=${encodeURIComponent(poem.poetName)}${bhavName ? `&bhav=${encodeURIComponent(bhavName)}` : ''}`
+  
+  return generatePoemMetadata({
+    title: poem.title,
+    slug: poem.slug,
+    text: poem.text,
+    poetName: poem.poetName,
+    bhav: bhavName,
+    imageUrl: ogImageUrl,
+  })
 }
-

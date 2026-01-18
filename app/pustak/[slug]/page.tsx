@@ -3,6 +3,8 @@ import { PageContainer } from '@/components/ui/PageContainer'
 import { SectionSpacing } from '@/components/ui/SectionSpacing'
 import { Divider } from '@/components/ui/Divider'
 import { TextButton } from '@/components/ui/TextButton'
+import { OptimizedImage } from '@/components/ui/OptimizedImage'
+import { ImagePlaceholder } from '@/components/ui/ImagePlaceholder'
 import Link from 'next/link'
 import { Metadata } from 'next'
 
@@ -15,7 +17,7 @@ const staticBooks = [
     description: 'प्रेम, जीवन और दर्शन पर कविताओं का पहला संग्रह। इस पुस्तक में वो कविताएँ हैं जो मंच पर सबसे ज़्यादा सराही गईं।',
     intent: 'यह पुस्तक मेरी पहली प्रकाशित रचना है। इसमें वो सभी कविताएँ हैं जो पिछले कई वर्षों में मंच पर प्रस्तुत की गईं और श्रोताओं ने जिन्हें सराहा। हर कविता में एक कहानी है, एक अनुभव है।',
     year: 2022,
-    coverImage: undefined,
+    coverImage: undefined as string | undefined,
     purchaseUrl: 'https://amazon.in',
     poems: [
       { title: 'कुछ शब्द सिर्फ़ कहे जाते', slug: 'kuch-shabd-sirf-kahe-jaate' },
@@ -32,7 +34,7 @@ const staticBooks = [
     description: 'भक्ति और श्रद्धा की कविताओं का विशेष संग्रह। हर कविता में ईश्वर की खोज और आत्मा की आवाज़।',
     intent: 'भक्ति मेरे जीवन का अभिन्न अंग है। इस पुस्तक में वो कविताएँ हैं जो मंदिरों में, सत्संगों में प्रस्तुत की गईं। ईश्वर से बातें करने का मेरा तरीका।',
     year: 2023,
-    coverImage: undefined,
+    coverImage: undefined as string | undefined,
     purchaseUrl: 'https://amazon.in',
     poems: [
       { title: 'भक्ति का सार', slug: 'bhakti-ka-saar' },
@@ -66,18 +68,25 @@ export default async function PustakPage({ params }: PageProps) {
           <div className="flex flex-col md:flex-row gap-8">
             {/* Book Cover */}
             <div className="flex-shrink-0">
-              <div className="w-48 h-64 sm:w-56 sm:h-72 bg-bg-secondary rounded-sm flex items-center justify-center mx-auto md:mx-0">
+              <div className="w-48 h-64 sm:w-56 sm:h-72 rounded-sm overflow-hidden mx-auto md:mx-0">
                 {book.coverImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img 
-                    src={book.coverImage} 
+                  <OptimizedImage
+                    src={book.coverImage}
                     alt={book.title}
-                    className="w-full h-full object-cover rounded-sm"
+                    width={224}
+                    height={288}
+                    priority
+                    objectFit="cover"
+                    fallback="/images/placeholders/book-cover.svg"
+                    className="w-full h-full"
+                    sizes="(max-width: 640px) 192px, 224px"
                   />
                 ) : (
-                  <span className="font-heading text-text-muted text-center px-4 text-lg">
-                    {book.title}
-                  </span>
+                  <ImagePlaceholder 
+                    type="book" 
+                    label={book.title}
+                    className="w-full h-full"
+                  />
                 )}
               </div>
             </div>
@@ -209,4 +218,3 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description: book.description,
   }
 }
-

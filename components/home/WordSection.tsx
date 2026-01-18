@@ -1,7 +1,8 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import Link from 'next/link'
+import { SafeImage, imageGradients } from '@/components/ui/SafeImage'
 
 interface FeaturedPoem {
   title: string
@@ -15,115 +16,126 @@ interface WordSectionProps {
   poems: FeaturedPoem[]
 }
 
+// Background images for poem cards
+const poemImages = [
+  'https://images.unsplash.com/photo-1473186505569-9c61870c11f9?q=80&w=800&auto=format&fit=crop', // Rain on window
+  'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop', // Open book
+  'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=800&auto=format&fit=crop', // Person reading
+  'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=800&auto=format&fit=crop', // Library
+  'https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?q=80&w=800&auto=format&fit=crop', // Coffee and book
+  'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=800&auto=format&fit=crop', // Vintage typewriter
+]
+
 export function WordSection({ poems }: WordSectionProps) {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2,
-      },
-    },
-  }
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.7, ease: 'easeOut' }
-    },
-  }
+  const prefersReducedMotion = useReducedMotion()
   
   return (
-    <section className="relative py-20 sm:py-32 px-6">
-      <div className="max-w-5xl mx-auto">
-        {/* Section label */}
+    <section className="py-20 sm:py-32 px-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Section header */}
         <motion.p
-          className="font-ui text-text-muted text-xs tracking-[0.2em] uppercase mb-4 text-center"
+          className="font-ui text-accent-gold text-xs tracking-[0.3em] uppercase mb-4 text-center"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.6 }}
         >
-          शब्द
+          चुनिंदा रचनाएँ
         </motion.p>
         
         <motion.h2
-          className="font-heading text-3xl sm:text-4xl text-text-primary text-center mb-16"
+          className="font-heading text-3xl sm:text-4xl md:text-5xl text-text-primary text-center mb-6"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          चुनिंदा कविताएँ
+          शब्दों का संसार
         </motion.h2>
         
-        {/* Poems Grid - Asymmetric layout */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-50px' }}
+        <motion.p
+          className="font-poem text-lg text-text-secondary text-center max-w-2xl mx-auto mb-14"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
-          {poems.map((poem, index) => (
-            <motion.div
-              key={poem.slug}
-              variants={itemVariants}
-              className={index === 0 ? 'md:col-span-2 lg:col-span-2' : ''}
-            >
-              <Link
-                href={`/kavita/${poem.slug}`}
-                className="group block h-full"
+          हर कविता एक अलग कहानी, हर शब्द एक अलग एहसास
+        </motion.p>
+        
+        {/* Poems Grid - Bento style */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {poems.map((poem, index) => {
+            const isLarge = index === 0
+            const imageUrl = poemImages[index % poemImages.length]
+            
+            return (
+              <motion.div
+                key={poem.slug}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ 
+                  duration: prefersReducedMotion ? 0 : 0.5, 
+                  delay: prefersReducedMotion ? 0 : index * 0.1 
+                }}
+                className={isLarge ? 'sm:col-span-2 lg:col-span-2 lg:row-span-2' : ''}
               >
-                <article className="relative h-full min-h-[280px] p-6 sm:p-8 border border-divider hover:border-divider-strong bg-bg-secondary/50 hover:bg-bg-secondary/80 transition-all duration-500 overflow-hidden">
-                  {/* Bhav tag */}
-                  <div className="absolute top-4 right-4">
-                    <span className="font-ui text-xs text-text-muted px-2 py-1 border border-divider">
-                      {poem.bhav}
-                    </span>
-                  </div>
-                  
-                  {/* Title */}
-                  <h3 className="font-heading text-xl sm:text-2xl text-text-primary mb-6 pr-16 group-hover:text-accent-gold transition-colors duration-300">
-                    {poem.title}
-                  </h3>
-                  
-                  {/* Opening lines with fade effect */}
-                  <div className="relative">
-                    {poem.openingLines.map((line, lineIndex) => (
-                      <p 
-                        key={lineIndex}
-                        className="font-poem text-text-secondary leading-loose"
-                        style={{
-                          opacity: 1 - (lineIndex * 0.25),
-                        }}
-                      >
-                        {line}
-                      </p>
-                    ))}
+                <Link
+                  href={`/kavita/${poem.slug}`}
+                  className="group block h-full"
+                >
+                  <div className={`relative overflow-hidden rounded-xl ${isLarge ? 'h-[400px] lg:h-full min-h-[500px]' : 'h-64'}`}>
+                    {/* Background Image */}
+                    <SafeImage
+                      src={imageUrl}
+                      alt={poem.title}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      fallbackGradient={imageGradients.poem}
+                    />
                     
-                    {/* Fade overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-bg-secondary/80 to-transparent pointer-events-none" />
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 group-hover:from-black/95 transition-colors duration-300" />
+                    
+                    {/* Content */}
+                    <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
+                      {/* Bhav tag */}
+                      <span className="absolute top-4 right-4 font-ui text-xs text-white/90 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+                        {poem.bhav}
+                      </span>
+                      
+                      {/* Title */}
+                      <h3 className={`font-heading text-white mb-4 group-hover:text-accent-gold transition-colors ${isLarge ? 'text-2xl sm:text-3xl lg:text-4xl' : 'text-xl sm:text-2xl'}`}>
+                        {poem.title}
+                      </h3>
+                      
+                      {/* Opening lines */}
+                      <div className="space-y-2 mb-6">
+                        {poem.openingLines.slice(0, isLarge ? 4 : 2).map((line, lineIndex) => (
+                          <p 
+                            key={lineIndex}
+                            className={`font-poem text-white/80 leading-relaxed ${isLarge ? 'text-lg' : 'text-sm'}`}
+                          >
+                            {line}
+                          </p>
+                        ))}
+                      </div>
+                      
+                      {/* Read more link */}
+                      <div className="flex items-center gap-2 text-accent-gold opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                        <span className="font-ui text-sm">पूरी कविता पढ़ें</span>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
-                  
-                  {/* Read more indicator */}
-                  <div className="absolute bottom-6 left-6 right-6 flex justify-between items-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                    <span className="font-ui text-sm text-text-muted">पूरी कविता पढ़ें</span>
-                    <svg className="w-5 h-5 text-accent-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </div>
-                  
-                  {/* Decorative corner */}
-                  <div className="absolute bottom-0 right-0 w-12 h-12 border-b border-r border-accent-gold/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                </article>
-              </Link>
-            </motion.div>
-          ))}
-        </motion.div>
+                </Link>
+              </motion.div>
+            )
+          })}
+        </div>
         
         {/* View all link */}
         <motion.div
@@ -135,10 +147,10 @@ export function WordSection({ poems }: WordSectionProps) {
         >
           <Link 
             href="/kavitayen"
-            className="inline-flex items-center gap-3 font-ui text-text-secondary hover:text-text-primary border border-divider hover:border-divider-strong px-6 py-3 transition-all group"
+            className="inline-flex items-center gap-3 font-ui text-text-primary hover:text-accent-gold border border-divider hover:border-accent-gold/50 px-8 py-4 rounded-lg transition-all duration-300"
           >
             <span>सभी कविताएँ देखें</span>
-            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
           </Link>
@@ -147,4 +159,3 @@ export function WordSection({ poems }: WordSectionProps) {
     </section>
   )
 }
-

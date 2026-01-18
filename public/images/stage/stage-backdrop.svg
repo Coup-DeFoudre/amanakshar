@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" fill="none">
+  <defs>
+    <linearGradient id="stageGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a1614"/>
+      <stop offset="100%" stop-color="#0d0b0a"/>
+    </linearGradient>
+    <radialGradient id="spotlight1" cx="50%" cy="20%" r="60%">
+      <stop offset="0%" stop-color="#D4A855" stop-opacity="0.3"/>
+      <stop offset="50%" stop-color="#D4A855" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#D4A855" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="spotlight2" cx="30%" cy="30%" r="40%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#stageGrad)"/>
+  
+  <!-- Stage floor -->
+  <path d="M0 200 L400 200 L400 300 L0 300 Z" fill="#1a1614" opacity="0.8"/>
+  <path d="M0 200 L400 200" stroke="#D4A855" stroke-width="1" opacity="0.3"/>
+  
+  <!-- Spotlights -->
+  <ellipse cx="200" cy="60" rx="180" ry="120" fill="url(#spotlight1)"/>
+  <ellipse cx="120" cy="100" rx="100" ry="80" fill="url(#spotlight2)"/>
+  
+  <!-- Microphone stand silhouette -->
+  <line x1="200" y1="140" x2="200" y2="220" stroke="#3d3530" stroke-width="3"/>
+  <circle cx="200" cy="135" r="12" fill="#3d3530"/>
+  <ellipse cx="200" cy="220" rx="20" ry="6" fill="#3d3530"/>
+  
+  <!-- Decorative curtain lines on sides -->
+  <path d="M0 0 Q20 50, 10 100 Q0 150, 15 200 Q5 250, 0 300" stroke="#D4A855" stroke-width="1" opacity="0.15" fill="none"/>
+  <path d="M400 0 Q380 50, 390 100 Q400 150, 385 200 Q395 250, 400 300" stroke="#D4A855" stroke-width="1" opacity="0.15" fill="none"/>
+  
+  <!-- Atmospheric particles -->
+  <circle cx="80" cy="80" r="1" fill="#D4A855" opacity="0.6"/>
+  <circle cx="320" cy="120" r="1.5" fill="#D4A855" opacity="0.4"/>
+  <circle cx="150" cy="60" r="1" fill="#D4A855" opacity="0.5"/>
+  <circle cx="250" cy="90" r="1.2" fill="#D4A855" opacity="0.3"/>
+  <circle cx="180" cy="150" r="1" fill="#fff" opacity="0.2"/>
+  <circle cx="220" cy="170" r="0.8" fill="#D4A855" opacity="0.4"/>
+</svg>

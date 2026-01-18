@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" fill="none">
+  <rect width="300" height="200" fill="#1a1a1a"/>
+  <rect x="10" y="10" width="280" height="180" rx="2" stroke="#333" stroke-width="1"/>
+  <!-- Calendar icon -->
+  <rect x="120" y="60" width="60" height="50" rx="4" stroke="#d4a855" stroke-width="1.5" fill="none"/>
+  <path d="M130 60 L130 50" stroke="#d4a855" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M170 60 L170 50" stroke="#d4a855" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M120 75 L180 75" stroke="#d4a855" stroke-width="1" opacity="0.5"/>
+  <text x="150" y="145" text-anchor="middle" fill="#666" font-family="serif" font-size="14">कार्यक्रम</text>
+</svg>

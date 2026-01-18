@@ -12,6 +12,7 @@ interface ConnectionSectionProps {
   email: string
   socialLinks: SocialLink[]
   poetName: string
+  signatureUrl?: string
 }
 
 const socialIcons = {
@@ -40,65 +41,62 @@ const socialIcons = {
 export function ConnectionSection({ 
   email, 
   socialLinks, 
-  poetName 
+  poetName,
+  signatureUrl = '/images/poet/signature.svg'
 }: ConnectionSectionProps) {
   return (
-    <footer className="relative py-16 sm:py-24 px-6">
-      {/* Top border with gradient */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-px bg-gradient-to-r from-transparent via-divider-strong to-transparent" />
+    <footer className="py-16 sm:py-20 px-6">
+      {/* Top border */}
+      <div className="max-w-lg mx-auto mb-12">
+        <div className="h-px bg-gradient-to-r from-transparent via-accent-gold/50 to-transparent" />
+      </div>
       
       <div className="max-w-4xl mx-auto text-center">
         {/* Poetic invitation */}
         <motion.p
-          className="font-poem text-lg sm:text-xl text-text-muted mb-8 italic"
+          className="font-poem text-lg text-text-muted mb-10 italic"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.6 }}
         >
           "शब्दों से जुड़ें, भावों से मिलें"
         </motion.p>
         
         {/* Social Links */}
         <motion.div
-          className="flex justify-center gap-6 mb-8"
+          className="flex justify-center gap-4 mb-10"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.1 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
         >
-          {socialLinks.map((link, index) => (
-            <motion.a
+          {socialLinks.map((link) => (
+            <a
               key={link.platform}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center w-12 h-12 border border-divider hover:border-accent-gold/50 text-text-muted hover:text-accent-gold transition-all duration-300 group"
-              aria-label={link.platform}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
-              whileHover={{ y: -2 }}
+              className="flex items-center justify-center w-12 h-12 border border-divider text-text-muted hover:text-accent-gold hover:border-accent-gold/50 transition-colors rounded-lg"
             >
               {socialIcons[link.platform]}
-            </motion.a>
+            </a>
           ))}
         </motion.div>
         
         {/* Email */}
         <motion.div
-          className="mb-12"
+          className="mb-10"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.3 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
           <a
             href={`mailto:${email}`}
-            className="inline-flex items-center gap-3 font-ui text-text-secondary hover:text-text-primary transition-colors group"
+            className="inline-flex items-center gap-2 font-ui text-text-secondary hover:text-accent-gold transition-colors"
           >
-            <svg className="w-5 h-5 text-text-muted group-hover:text-accent-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
             <span>{email}</span>
@@ -107,11 +105,11 @@ export function ConnectionSection({
         
         {/* Navigation links */}
         <motion.nav
-          className="flex flex-wrap justify-center gap-x-8 gap-y-3 mb-12"
+          className="flex flex-wrap justify-center gap-x-8 gap-y-3 mb-10"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
         >
           {[
             { href: '/kavitayen', label: 'कविताएँ' },
@@ -123,38 +121,42 @@ export function ConnectionSection({
             <Link
               key={link.href}
               href={link.href}
-              className="font-ui text-sm text-text-muted hover:text-text-primary transition-colors"
+              className="font-ui text-sm text-text-muted hover:text-accent-gold transition-colors"
             >
               {link.label}
             </Link>
           ))}
         </motion.nav>
         
+        {/* Signature */}
+        {signatureUrl && (
+          <motion.div
+            className="flex justify-center mb-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <img 
+              src={signatureUrl} 
+              alt={`${poetName} हस्ताक्षर`}
+              className="h-10 w-auto opacity-40"
+            />
+          </motion.div>
+        )}
+        
         {/* Decorative element */}
-        <motion.div
-          className="flex items-center justify-center gap-4 mb-8"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-        >
-          <div className="w-8 h-px bg-divider" />
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <div className="w-10 h-px bg-gradient-to-r from-transparent to-divider" />
           <span className="font-heading text-2xl text-accent-gold/30">अ</span>
-          <div className="w-8 h-px bg-divider" />
-        </motion.div>
+          <div className="w-10 h-px bg-gradient-to-l from-transparent to-divider" />
+        </div>
         
         {/* Copyright */}
-        <motion.p
-          className="font-ui text-sm text-text-muted"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-        >
+        <p className="font-ui text-sm text-text-muted">
           © {new Date().getFullYear()} {poetName} — सर्वाधिकार सुरक्षित
-        </motion.p>
+        </p>
       </div>
     </footer>
   )
 }
-

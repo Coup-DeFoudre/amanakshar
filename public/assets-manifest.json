@@ -1,0 +1,90 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-01-16",
+  "critical": {
+    "models": [
+      {
+        "url": "/models/poet-portrait.glb",
+        "type": "model",
+        "priority": "critical",
+        "size": "estimated_2mb",
+        "usage": "homepage_hero"
+      }
+    ],
+    "textures": [
+      {
+        "url": "/textures/noise.png",
+        "type": "texture",
+        "priority": "high",
+        "size": "256kb",
+        "usage": "atmospheric_effects"
+      }
+    ],
+    "draco": [
+      {
+        "url": "/draco/draco_decoder.wasm",
+        "type": "draco",
+        "priority": "critical",
+        "size": "200kb",
+        "usage": "model_decompression"
+      },
+      {
+        "url": "/draco/draco_wasm_wrapper.js",
+        "type": "draco",
+        "priority": "critical",
+        "size": "50kb",
+        "usage": "model_decompression"
+      }
+    ]
+  },
+  "high": {
+    "models": [],
+    "textures": [
+      {
+        "url": "/textures/paper.svg",
+        "type": "texture",
+        "priority": "high",
+        "size": "64kb",
+        "usage": "background_paper_texture"
+      }
+    ]
+  },
+  "medium": {
+    "models": [],
+    "textures": []
+  },
+  "low": {
+    "models": [],
+    "textures": []
+  },
+  "cdn": {
+    "domains": [
+      "https://res.cloudinary.com",
+      "https://cdn.amanakshar.com"
+    ]
+  },
+  "performance": {
+    "budgets": {
+      "low": {
+        "maxModels": 1,
+        "maxTextureSize": "512px",
+        "maxTotalSize": "5mb"
+      },
+      "medium": {
+        "maxModels": 2,
+        "maxTextureSize": "1024px",
+        "maxTotalSize": "15mb"
+      },
+      "high": {
+        "maxModels": 4,
+        "maxTextureSize": "2048px",
+        "maxTotalSize": "50mb"
+      },
+      "ultra": {
+        "maxModels": 8,
+        "maxTextureSize": "4096px",
+        "maxTotalSize": "100mb"
+      }
+    }
+  }
+}

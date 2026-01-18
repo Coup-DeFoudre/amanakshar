@@ -9,9 +9,10 @@ interface FooterSectionProps {
     youtube?: string
     instagram?: string
   }
+  signatureUrl?: string
 }
 
-export function FooterSection({ email, socialLinks }: FooterSectionProps) {
+export function FooterSection({ email, socialLinks, signatureUrl = '/images/poet/signature.svg' }: FooterSectionProps) {
   return (
     <footer className="py-8 sm:py-12 border-t border-divider">
       <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
@@ -72,8 +73,17 @@ export function FooterSection({ email, socialLinks }: FooterSectionProps) {
         </a>
       </div>
       
+      {/* Signature */}
+      <div className="flex justify-center mt-6 mb-4">
+        <img 
+          src={signatureUrl} 
+          alt="अमन अक्षर हस्ताक्षर" 
+          className="h-8 w-auto opacity-40 hover:opacity-60 transition-opacity"
+        />
+      </div>
+      
       {/* Copyright */}
-      <p className="text-center text-text-muted text-sm mt-6 font-ui">
+      <p className="text-center text-text-muted text-sm font-ui">
         © {new Date().getFullYear()} अमन अक्षर
       </p>
     </footer>

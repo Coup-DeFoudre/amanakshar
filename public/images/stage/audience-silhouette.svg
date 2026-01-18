@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150" fill="none">
+  <defs>
+    <linearGradient id="audienceGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#0d0b0a"/>
+      <stop offset="100%" stop-color="#0d0b0a" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Audience silhouette waves -->
+  <path 
+    d="M0 150 
+       C20 140, 30 130, 50 135 
+       C70 140, 85 125, 100 130 
+       C115 135, 125 120, 145 125 
+       C165 130, 175 115, 200 120 
+       C225 125, 235 110, 255 115 
+       C275 120, 290 105, 310 110 
+       C330 115, 345 100, 365 105 
+       C385 110, 395 95, 400 100 
+       L400 150 Z" 
+    fill="#1a1614" 
+    opacity="0.9"/>
+  
+  <!-- Second row (lighter) -->
+  <path 
+    d="M0 150 
+       C15 145, 25 140, 40 142 
+       C55 144, 70 135, 90 138 
+       C110 141, 125 130, 150 133 
+       C175 136, 190 128, 215 130 
+       C240 132, 260 122, 285 125 
+       C310 128, 330 118, 355 120 
+       C380 122, 395 115, 400 118 
+       L400 150 Z" 
+    fill="#252220" 
+    opacity="0.7"/>
+  
+  <!-- Subtle raised hands -->
+  <path d="M120 125 Q122 115, 120 105" stroke="#3d3530" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+  <path d="M280 120 Q282 110, 278 100" stroke="#3d3530" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+  
+  <!-- Overlay gradient -->
+  <rect width="400" height="150" fill="url(#audienceGrad)" opacity="0.3"/>
+</svg>

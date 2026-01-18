@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" fill="none">
+  <defs>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A855"/>
+      <stop offset="100%" stop-color="#B89245"/>
+    </linearGradient>
+  </defs>
+  <!-- Stylized Devanagari-inspired decorative element -->
+  <path 
+    d="M30 5 Q45 10, 50 25 Q55 40, 45 50 Q35 58, 20 52 Q8 45, 10 30 Q12 15, 30 5" 
+    stroke="url(#accentGrad)" 
+    stroke-width="1.5" 
+    stroke-linecap="round"
+    fill="none"
+    opacity="0.4"/>
+  <path 
+    d="M25 15 Q35 18, 40 28 Q42 38, 35 44 Q28 48, 20 42 Q15 35, 18 25 Q21 18, 25 15" 
+    stroke="url(#accentGrad)" 
+    stroke-width="1" 
+    stroke-linecap="round"
+    fill="none"
+    opacity="0.6"/>
+  <!-- Center dot -->
+  <circle cx="30" cy="30" r="3" fill="#D4A855" opacity="0.8"/>
+</svg>

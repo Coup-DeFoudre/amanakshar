@@ -30,11 +30,34 @@ export default function SamparkPage() {
     e.preventDefault()
     setIsSubmitting(true)
     
-    // Simulate form submission - will be replaced with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+    try {
+      const response = await fetch('/api/enquiries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        setIsSubmitted(true)
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          eventType: '',
+          message: '',
+        })
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Error submitting form. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      alert('Error submitting form. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

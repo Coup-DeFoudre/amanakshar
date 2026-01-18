@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" fill="none">
+  <rect width="320" height="180" fill="#1a1a1a"/>
+  <rect x="10" y="10" width="300" height="160" rx="2" stroke="#333" stroke-width="1"/>
+  <!-- Play button -->
+  <circle cx="160" cy="80" r="30" stroke="#d4a855" stroke-width="1.5" fill="none" opacity="0.8"/>
+  <path d="M152 65 L175 80 L152 95 Z" fill="#d4a855" opacity="0.6"/>
+  <text x="160" y="140" text-anchor="middle" fill="#666" font-family="serif" font-size="14">प्रस्तुति</text>
+</svg>

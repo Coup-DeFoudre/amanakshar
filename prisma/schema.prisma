@@ -11,13 +11,16 @@ datasource db {
 // ===== BHAV (Themes/Emotions) =====
 model Bhav {
   id          String   @id @default(cuid())
-  name        String   @unique // प्रेम, भक्ति, जीवन, दर्शन
+  name        String   @unique
   slug        String   @unique
   description String?
+  sampleLine  String?
+  icon        String?
+  color       String?
+  imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relations
   poems        PoemBhav[]
   performances PerformanceBhav[]
 
@@ -29,29 +32,21 @@ model Poem {
   id                    String    @id @default(cuid())
   title                 String
   slug                  String    @unique
-  text                  String    // Full poem text
-  poetName              String    @default("अमन अक्षर")
-  
-  // Dates
+  text                  String
+  poetName              String    @default("à¤…à¤®à¤¨ à¤…à¤•à¥à¤·à¤°")
   writtenDate           DateTime?
   firstPerformanceYear  Int?
   firstPerformancePlace String?
-  
-  // Media
   youtubeUrl            String?
-  
-  // Publishing
   isFeatured            Boolean   @default(false)
   isPublished           Boolean   @default(false)
-  
-  // Timestamps
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
-  // Relations
   bhavs       PoemBhav[]
   book        Book?       @relation(fields: [bookId], references: [id])
   bookId      String?
+  likes       Like[]
 
   @@index([slug])
   @@index([isPublished])
@@ -71,27 +66,19 @@ model PoemBhav {
 
 // ===== BOOKS =====
 model Book {
-  id          String  @id @default(cuid())
-  title       String
-  slug        String  @unique
-  description String?
-  
-  // Cover image stored as bytes
+  id             String   @id @default(cuid())
+  title          String
+  slug           String   @unique
+  description    String?
   coverImage     Bytes?
-  coverImageType String? // e.g., "image/jpeg", "image/png"
-  
-  year        Int?
-  purchaseUrl String?
-  
-  // Publishing
-  isFeatured  Boolean @default(false)
-  isPublished Boolean @default(false)
-  
-  // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  coverImageType String?
+  year           Int?
+  purchaseUrl    String?
+  isFeatured     Boolean  @default(false)
+  isPublished    Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  // Relations
   poems Poem[]
 
   @@index([slug])
@@ -103,21 +90,14 @@ model Performance {
   id          String   @id @default(cuid())
   title       String
   slug        String   @unique
-  context     String?  // Short description (1-2 lines)
+  context     String?
   youtubeUrl  String
-  
-  // Type: कवि-सम्मेलन, विशेष प्रस्तुति, भक्ति
-  type        String   @default("कवि-सम्मेलन")
-  
-  // Publishing
+  type        String   @default("à¤•à¤µà¤¿-à¤¸à¤®à¥à¤®à¥‡à¤²à¤¨")
   isFeatured  Boolean  @default(false)
   isPublished Boolean  @default(false)
-  
-  // Timestamps
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relations
   bhavs PerformanceBhav[]
 
   @@index([slug])
@@ -160,22 +140,24 @@ model ContactSubmission {
   name      String
   email     String
   phone     String?
-  eventType String?  // कवि-सम्मेलन, सांस्कृतिक कार्यक्रम, etc.
+  eventType String?
   message   String
   isRead    Boolean  @default(false)
+  status    String   @default("pending") // pending, responded, archived
   createdAt DateTime @default(now())
 
   @@index([isRead])
+  @@index([status])
   @@index([createdAt])
 }
 
 // ===== FEATURED CONTENT =====
 model FeaturedContent {
   id          String   @id @default(cuid())
-  type        String   // "quote", "poem", "performance", "book"
-  contentId   String?  // Reference to poem/performance/book id
-  customText  String?  // For custom quotes
-  position    Int      @default(0) // Order on homepage
+  type        String
+  contentId   String?
+  customText  String?
+  position    Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -184,3 +166,85 @@ model FeaturedContent {
   @@index([isActive])
 }
 
+// ===== HOMEPAGE SECTIONS =====
+model HomepageSection {
+  id           String   @id @default(cuid())
+  sectionKey   String   @unique
+  title        String?
+  subtitle     String?
+  content      Json
+  imageUrl     String?
+  imageBytes   Bytes?
+  imageType    String?
+  isActive     Boolean  @default(true)
+  displayOrder Int      @default(0)
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+
+  @@index([sectionKey])
+  @@index([isActive])
+  @@index([displayOrder])
+}
+
+// ===== EVENTS (Live/Upcoming Performances) =====
+model Event {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  description  String?
+  eventDate    DateTime
+  eventTime    String?
+  venue        String?
+  venueAddress String?
+  city         String?
+  state        String?
+  isLive       Boolean  @default(false)
+  isPublished  Boolean  @default(false)
+  isPaid       Boolean  @default(false)
+  price        Float?
+  imageUrl     String?
+  ticketUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([slug])
+  @@index([eventDate])
+  @@index([isPublished])
+  @@index([isLive])
+  @@index([isPaid])
+}
+
+// ===== LIKES (Poem Likes) =====
+model Like {
+  id         String   @id @default(cuid())
+  poemId     String
+  poem       Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
+  browserUuid String
+  createdAt  DateTime @default(now())
+
+  @@unique([poemId, browserUuid])
+  @@index([poemId])
+  @@index([browserUuid])
+}
+
+// ===== NOTIFICATION SUBSCRIPTIONS =====
+model NotificationSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  keys      Json     // { p256dh: string, auth: string }
+  userId    String?  // Optional user identifier
+  createdAt DateTime @default(now())
+
+  @@index([endpoint])
+}
+
+// ===== NOTIFICATION LOG =====
+model NotificationLog {
+  id            String   @id @default(cuid())
+  title         String
+  body          String
+  recipientCount Int     @default(0)
+  sentAt        DateTime @default(now())
+
+  @@index([sentAt])
+}

@@ -1,19 +1,22 @@
-import { auth } from '@/lib/auth'
-import { redirect } from 'next/navigation'
+import { AdminSidebar } from '@/components/admin/AdminSidebar'
+import { AdminMobileMenu } from '@/components/admin/AdminMobileMenu'
+import { AdminBreadcrumb } from '@/components/admin/AdminBreadcrumb'
 
-export default async function AdminLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
-  
-  // Allow access to login page without auth
-  // Other admin pages require authentication
-  
   return (
     <div className="min-h-screen bg-bg-primary">
-      {children}
+      <AdminSidebar />
+      <AdminMobileMenu />
+      <main className="lg:ml-64">
+        <AdminBreadcrumb />
+        <div className="p-4 lg:p-8">
+          {children}
+        </div>
+      </main>
     </div>
   )
 }
